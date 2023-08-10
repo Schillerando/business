@@ -1,5 +1,6 @@
 <template>
-  <EditAccountingEntryOverlay v-if="newEntry" :products="products" @stopEditingEntry="stopEditingEntry($event)" @deleteEntry="deleteEntry()"/>
+  <EditAccountingEntryOverlay v-if="newEntry" :products="products" @stopEditingEntry="stopEditingEntry($event)"
+    @deleteEntry="deleteEntry()" />
 
   <div style="width: 100vw;">
     <TitleDiv title="Buchhaltung" />
@@ -10,6 +11,9 @@
 
     <button class="btn btn-primary mb-4 add-product" @click="addEntry()">
       Eintrag hinzufügen
+    </button>
+    <button class="btn btn-primary mb-4 add-product" @click="downloadCSV()">
+      CSV herunterladen
     </button>
 
     <div class="row">
@@ -24,11 +28,12 @@
                 <div :key="key" class="profit" :class="{ revenue: profit > 0, expenses: profit < 0 }">
                   <h3>Gewinn / Verlust</h3>
                   <h1>{{ profit }} $</h1>
-                  <div class="euroProfit">{{ euroProfit }} €</div> 
+                  <div class="euroProfit">{{ euroProfit }} €</div>
 
-                  <a id="tooltip" v-if="profit > 0" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="mit 20% Umtauschsteuer">
+                  <a id="tooltip" v-if="profit > 0" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="mit 20% Umtauschsteuer">
                     <i class="fa-regular fa-circle-question fa-lg"></i>
-                  </a>      
+                  </a>
 
                 </div>
               </div>
@@ -60,9 +65,9 @@
         </div>
 
       </div>
-      
+
       <div class="col-lg-6">
-        
+
         <div class="canvas">
           <canvas :key="key" id="total-chart"></canvas>
 
@@ -70,18 +75,11 @@
         </div>
 
       </div>
-    
+
       <div class="col-lg-6">
         <div class="entries">
-          <SortableList
-            :items="entries"
-            :products="products"
-            :key="key"
-            element="AccountingEntryTile"
-            @deleteEntry="deleteEntry($event)"
-            @stopEditingEntry="stopEditingEntry($event)"
-
-          />
+          <SortableList :items="entries" :products="products" :key="key" element="AccountingEntryTile"
+            @deleteEntry="deleteEntry($event)" @stopEditingEntry="stopEditingEntry($event)" />
 
           <!--
           <div v-if="entries.length > 0">
@@ -94,14 +92,11 @@
           </div>
           -->
         </div>
-          
+
       </div>
 
     </div>
   </div>
-  
-  
-
 </template>
 
 <script>
@@ -117,9 +112,9 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 export default {
   name: 'AccountingView',
   components: {
-    TitleDiv,   
+    TitleDiv,
     EditAccountingEntryOverlay,
-    SortableList, 
+    SortableList,
   },
   setup() {
     const store = useStore();
@@ -139,9 +134,9 @@ export default {
     require('bootstrap');
 
     window.$('body').tooltip({
-        selector: '[data-bs-toggle="tooltip"]',
+      selector: '[data-bs-toggle="tooltip"]',
     });
-  },  
+  },
   data() {
     return {
       entries: [],
@@ -160,9 +155,9 @@ export default {
   async created() {
     {
       const { data, error } = await supabase
-      .from('products')
-      .select()
-      .eq('company_id', this.companyData.id);
+        .from('products')
+        .select()
+        .eq('company_id', this.companyData.id);
 
       if (error) throw error;
       this.products = data.sort((a, b) => a.name.localeCompare(b.name));
@@ -179,9 +174,26 @@ export default {
 
     this.calculateProfit()
     this.updateGraphs()
-    
+
   },
   methods: {
+    downloadCSV() {
+      let exportString = 'Titel,Betrag,Art,Datum,Beschreibung,Foto-ID'
+      const entries = this.entries
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i]
+        exportString += `\n${entry.name},${entry.amount},${entry.type},${entry.created_at},${entry.info},${entry.bill_picture}`
+      }
+      let link = document.createElement("a");
+      link.style.display = "none";
+      link.textContent = "download";
+      link.download = "buchhaltung.csv";
+      link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(exportString);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      document.getElementById("export-overlay").style.display = "none";
+    },
     deleteEntry(entryData) {
       this.newEntry = false;
 
@@ -194,19 +206,19 @@ export default {
       this.updateGraphs()
 
       this.key++;
-    }, 
+    },
     stopEditingEntry(entryData) {
       this.newEntry = false;
 
-      if(entryData != null) {
+      if (entryData != null) {
         const index = this.entries.findIndex((entry) => {
           return entry.id == entryData.id
-        }) 
+        })
 
         console.log(this.entries)
         console.log(index)
 
-        if(index == -1) {
+        if (index == -1) {
           this.entries.push(entryData);
         } else {
           this.entries[index].type = entryData.type
@@ -231,7 +243,7 @@ export default {
       this.expenses = 0
 
       this.entries.forEach(entry => {
-        if(entry.amount > 0) {
+        if (entry.amount > 0) {
           this.revenue += entry.amount
         } else {
           this.expenses += Math.abs(entry.amount)
@@ -246,13 +258,13 @@ export default {
     updateGraphs() {
       this.updateTotalGraph()
       this.updateTypeGraph()
-    },  
+    },
     updateTotalGraph() {
       const revenueChart = {
         type: 'bar',
         label: 'Einnahmen',
         data: [],
-        backgroundColor:"rgba(0, 128, 0, 0.2)",
+        backgroundColor: "rgba(0, 128, 0, 0.2)",
         borderColor: "rgba(0, 128, 0, 1)",
         order: 2,
         borderSkipped: false,
@@ -263,7 +275,7 @@ export default {
         type: 'bar',
         label: 'Ausgaben',
         data: [],
-        backgroundColor:"rgba(255, 0, 0, 0.2)",
+        backgroundColor: "rgba(255, 0, 0, 0.2)",
         borderColor: "rgba(255, 0, 0, 1)",
         order: 3,
         borderSkipped: false,
@@ -274,7 +286,7 @@ export default {
         type: 'line',
         label: 'Gewinn / Verlust',
         data: [],
-        backgroundColor:"rgba(13, 110, 253, 1)",
+        backgroundColor: "rgba(13, 110, 253, 1)",
         borderColor: "rgba(13, 110, 253, 1)",
         order: 1,
       }
@@ -291,7 +303,7 @@ export default {
 
         var index;
 
-        if(labels.includes(entry.created_at.split('T')[0])) {
+        if (labels.includes(entry.created_at.split('T')[0])) {
           index = labels.indexOf(entry.created_at.split('T')[0])
 
         } else {
@@ -301,11 +313,11 @@ export default {
 
           revenueChart.data.push(0)
           expensesChart.data.push(0)
-          if(index == 0) profitChart.data.push(0)
-          else profitChart.data[index] = profitChart.data[index-1]
+          if (index == 0) profitChart.data.push(0)
+          else profitChart.data[index] = profitChart.data[index - 1]
         }
 
-        if(entry.amount > 0) {
+        if (entry.amount > 0) {
           revenueChart.data[index] += entry.amount;
         } else {
           expensesChart.data[index] += entry.amount;
@@ -315,7 +327,7 @@ export default {
 
       })
 
-      if(this.totalChart != null) this.totalChart.destroy()
+      if (this.totalChart != null) this.totalChart.destroy()
       this.totalChart = null
 
       const ctx = document.getElementById('total-chart');
@@ -340,7 +352,7 @@ export default {
           responsive: true,
         }
       });
-      
+
     },
     updateTypeGraph() {
 
@@ -348,7 +360,7 @@ export default {
       this.entries.forEach((entry) => {
         typeEntries.push(entry)
       })
-      typeEntries.sort((a, b) => a.type[a.type.length-1].localeCompare(b.type[b.type.length-1]));
+      typeEntries.sort((a, b) => a.type[a.type.length - 1].localeCompare(b.type[b.type.length - 1]));
 
       const typeChart = {
         type: 'bar',
@@ -366,7 +378,7 @@ export default {
 
         var index;
 
-        if(labels.includes(entry.type.replace('+', '').replace('-', ''))) {
+        if (labels.includes(entry.type.replace('+', '').replace('-', ''))) {
           index = labels.indexOf(entry.type.replace('+', '').replace('-', ''))
 
         } else {
@@ -376,7 +388,7 @@ export default {
 
           typeChart.data.push(0)
 
-          if(entry.amount > 0) {
+          if (entry.amount > 0) {
             typeChart.backgroundColor.push("rgba(0, 128, 0, 0.2)")
             typeChart.borderColor.push("rgba(0, 128, 0, 1)")
           } else {
@@ -391,11 +403,11 @@ export default {
 
 
       var sonstIndex = labels.indexOf('Sonstige Einnahme')
-      if(sonstIndex != -1) labels[sonstIndex] = 'Sonst. Einn.'
+      if (sonstIndex != -1) labels[sonstIndex] = 'Sonst. Einn.'
       sonstIndex = labels.indexOf('Sonstige Ausgabe')
-      if(sonstIndex != -1) labels[sonstIndex] = 'Sonst. Ausg.'
+      if (sonstIndex != -1) labels[sonstIndex] = 'Sonst. Ausg.'
 
-      if(this.typeChart != null) this.typeChart.destroy()
+      if (this.typeChart != null) this.typeChart.destroy()
       this.typeChart = null
 
       const ctx = document.getElementById('type-chart');
@@ -421,14 +433,13 @@ export default {
         }
       });
 
-      
+
     }
   }
 };
 </script>
 
 <style scoped>
-
 h1 {
   font-weight: 600;
   font-size: 2.5rem;
@@ -512,5 +523,4 @@ h3 {
   width: 100%;
   margin-bottom: 50px;
 }
-
 </style>
