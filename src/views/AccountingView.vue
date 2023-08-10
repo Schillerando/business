@@ -210,7 +210,6 @@ export default {
       link.style.display = "none";
       link.click();
       document.body.removeChild(link);
-      //document.getElementById("export-overlay").style.display = "none";
     },
     deleteEntry(entryData) {
       this.newEntry = false;
@@ -291,7 +290,7 @@ export default {
 
       this.profit = (this.schilliRevenue - this.schilliExpenses) + (this.euroRevenue - this.euroExpenses) * 12.5;
 
-      this.euroProfit = this.profit > 0 ? this.profit * 0.08 : this.profit * 0.08
+      this.euroProfit = this.profit * 0.08
 
       this.euroRevenue = this.euroRevenue.toFixed(2);
       this.schilliRevenue = this.schilliRevenue.toFixed(0);
