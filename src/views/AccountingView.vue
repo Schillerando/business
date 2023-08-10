@@ -368,13 +368,15 @@ export default {
           else profitChart.data[index] = profitChart.data[index - 1]
         }
 
-        if (entry.amount > 0) {
-          revenueChart.data[index] += entry.amount;
+        var amount = entry.currencyIsEuro ? parseInt((entry.amount * 12.5).toFixed(0)) : entry.amount;
+        
+        if (amount > 0) {
+          revenueChart.data[index] += amount;
         } else {
-          expensesChart.data[index] += entry.amount;
+          expensesChart.data[index] += amount;
         }
 
-        profitChart.data[index] += entry.amount;
+        profitChart.data[index] += amount;
 
       })
 
@@ -448,7 +450,9 @@ export default {
           }
         }
 
-        typeChart.data[index] += entry.amount;
+        var amount = entry.currencyIsEuro ? parseInt((entry.amount * 12.5).toFixed(0)) : entry.amount;
+
+        typeChart.data[index] += amount;
 
       })
 
