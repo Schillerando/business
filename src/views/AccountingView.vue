@@ -5,16 +5,26 @@
   <div style="width: 100vw;">
     <TitleDiv title="Buchhaltung" />
 
-    <p style="margin-bottom: 20px; margin-top: -20px">
-      $ <span style="font-size: 1.3rem">&#8793;</span> Schilli (1$ = 0.1€)
+    <div class="download">
+      <p class="download-title">Herunterladen</p>
+      
+      <button class="btn btn-primary mb-4 download-button" @click="downloadCSV()">
+        CSV (EXCEL)
+      </button>
+
+      <button class="btn btn-primary mb-4 download-button" @click="downloadCSV()">
+        PDF
+      </button>
+    </div>
+
+    <p style="margin-bottom: 20px;">
+      $ <span style="font-size: 1.3rem">&#8793;</span> Schilli
     </p>
 
     <button class="btn btn-primary mb-4 add-product" @click="addEntry()">
       Eintrag hinzufügen
     </button>
-    <button class="btn btn-primary mb-4 add-product" @click="downloadCSV()">
-      CSV herunterladen
-    </button>
+
 
     <div class="row">
 
@@ -46,6 +56,8 @@
                 <div :key="key" class="revenue">
                   <h3>Einnahmen</h3>
                   <h1>{{ revenue }} $</h1>
+                  <div v-if="euroRevenue != 0 && schilliRevenue != 0" class="euroProfit">{{ euroRevenue }} € + {{ schilliRevenue }} $</div>
+                  <div v-else-if="euroRevenue != 0" class="euroProfit">{{ euroRevenue }} €</div>
                 </div>
               </div>
             </div>
@@ -57,6 +69,8 @@
                 <div :key="key" class="expenses">
                   <h3>Ausgaben</h3>
                   <h1>{{ expenses }} $</h1>
+                  <div v-if="euroExpenses != 0 && schilliExpenses != 0" class="euroProfit">{{ euroExpenses }} € + {{ schilliExpenses }} $</div>
+                  <div v-else-if="euroExpenses != 0" class="euroProfit">{{ euroExpenses }} €</div>
                 </div>
               </div>
             </div>
@@ -141,7 +155,11 @@ export default {
     return {
       entries: [],
       products: [],
+      euroExpenses: 0,
+      schilliExpenses: 0,
       expenses: 0,
+      euroRevenue: 0,
+      schilliRevenue: 0,
       revenue: 0,
       profit: 0,
       euroProfit: 0,
@@ -178,21 +196,21 @@ export default {
   },
   methods: {
     downloadCSV() {
-      let exportString = 'Titel,Betrag,Art,Datum,Beschreibung,Foto-ID'
+      let exportString = 'Titel;Art;Währung;Betrag;Datum;Beschreibung'
       const entries = this.entries
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i]
-        exportString += `\n${entry.name},${entry.amount},${entry.type},${entry.created_at},${entry.info},${entry.bill_picture}`
+        exportString += `\n${entry.name};${entry.type.replace('+', '').replace('-', '')};${entry.currencyIsEuro ? 'Euro' : 'Schilli'};${entry.amount};${entry.created_at};${entry.info}`
       }
       let link = document.createElement("a");
-      link.style.display = "none";
       link.textContent = "download";
       link.download = "buchhaltung.csv";
       link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(exportString);
       document.body.appendChild(link);
+      link.style.display = "none";
       link.click();
       document.body.removeChild(link);
-      document.getElementById("export-overlay").style.display = "none";
+      //document.getElementById("export-overlay").style.display = "none";
     },
     deleteEntry(entryData) {
       this.newEntry = false;
@@ -227,6 +245,7 @@ export default {
           this.entries[index].amount = entryData.amount
           this.entries[index].info = entryData.info
           this.entries[index].bill_picture = entryData.bill_picture
+          this.entries[index].currencyIsEuro = entryData.currencyIsEuro
         }
       }
 
@@ -239,19 +258,51 @@ export default {
       this.newEntry = true;
     },
     calculateProfit() {
+      this.euroRevenue = 0
+      this.schilliRevenue = 0
       this.revenue = 0
+      this.euroExpenses = 0
+      this.schilliExpenses = 0
       this.expenses = 0
 
       this.entries.forEach(entry => {
         if (entry.amount > 0) {
-          this.revenue += entry.amount
+
+          if(entry.currencyIsEuro) this.euroRevenue += entry.amount
+          else this.schilliRevenue += entry.amount
+
         } else {
-          this.expenses += Math.abs(entry.amount)
+
+          if(entry.currencyIsEuro) this.euroExpenses += Math.abs(entry.amount)
+          else this.schilliExpenses += Math.abs(entry.amount)
+
         }
       })
 
-      this.profit = this.revenue - this.expenses;
-      this.euroProfit = this.profit > 0 ? this.profit * 0.08 : this.profit * 0.1
+      this.revenue = this.schilliRevenue + this.euroRevenue * 12.5
+      this.expenses = this.schilliExpenses + this.euroExpenses * 12.5
+
+      /*
+      this.profit = this.schilliRevenue - this.schilliExpenses
+      if(this.euroProfit - this.euroRevenue > 0) {
+        this.profit += this.euro
+      }
+      */
+
+      this.profit = (this.schilliRevenue - this.schilliExpenses) + (this.euroRevenue - this.euroExpenses) * 12.5;
+
+      this.euroProfit = this.profit > 0 ? this.profit * 0.08 : this.profit * 0.08
+
+      this.euroRevenue = this.euroRevenue.toFixed(2);
+      this.schilliRevenue = this.schilliRevenue.toFixed(0);
+
+      this.euroExpenses = this.euroExpenses.toFixed(2);
+      this.schilliExpenses = this.schilliExpenses.toFixed(0);
+
+      this.revenue = this.revenue.toFixed(0);
+      this.expenses = this.expenses.toFixed(0);
+
+      this.profit = this.profit.toFixed(0);
       this.euroProfit = this.euroProfit.toFixed(2);
 
     },
@@ -522,5 +573,23 @@ h3 {
 #type-chart {
   width: 100%;
   margin-bottom: 50px;
+}
+
+.download {
+  position: relative;
+  margin: 0 auto;
+  margin-top: -20px;
+}
+
+.download-title {
+  margin: 0 5px 0 0;
+  display: inline;
+  font-size: 1.2rem;
+  position: relative;
+  bottom: 8px;
+}
+
+.download-button {
+  margin: 5px 5px;
 }
 </style>

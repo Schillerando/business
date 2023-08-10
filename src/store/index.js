@@ -492,7 +492,8 @@ const store = createStore({
           amount: entry.type.includes('-') ? -Math.abs(entry.amount) : Math.abs(entry.amount),
           product: entry.product.id,
           user_id: this.getters.getUser.id,
-          company_id: this.getters.getUserCompany.id
+          company_id: this.getters.getUserCompany.id,
+          currencyIsEuro: entry.currencyIsEuro
         })
         .select()
 
@@ -552,6 +553,7 @@ const store = createStore({
           type: entry.type,
           amount: entry.type.includes('-') ? -Math.abs(entry.amount) : Math.abs(entry.amount),
           product: entry.product.id,
+          currencyIsEuro: entry.currencyIsEuro
         })
         .eq('id', entry.id)
         .select()

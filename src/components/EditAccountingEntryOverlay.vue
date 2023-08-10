@@ -73,9 +73,23 @@
             />
           </div>
 
+          <div v-if="entry.type != 'Verkauf+' && entry.type != 'Miete-'" class="input-group mb-3">
+            <span class="input-group-text currency-input"
+              >Währung</span>
+            <a :class="{ 'btn-primary': !entry.currencyIsEuro, }" @click.prevent="changeCurrency(false)" class="form-control">
+              Schillis
+            </a>
+            <a :class="{ 'btn-primary': entry.currencyIsEuro }" @click.prevent="changeCurrency(true)" class="form-control">
+              Euro
+            </a>
+          </div>
+
           <div class="input-group mb-3">
             <span class="input-group-text"
-              ><i class="fa-solid fa-dollar-sign" :class="{ income: entry.type.includes('+'), expense: entry.type.includes('-') }"></i></span>
+              >
+              <i v-if="entry.currencyIsEuro" class="fa-solid fa-euro-sign" :class="{ income: entry.type.includes('+'), expense: entry.type.includes('-') }"></i>
+              <i v-else class="fa-solid fa-dollar-sign" :class="{ income: entry.type.includes('+'), expense: entry.type.includes('-') }"></i>
+            </span>
             <input
               type="number"
               id="entry-amount"
@@ -183,7 +197,8 @@ export default {
       created_at: '',
       imageBefore: null, 
       image: null, 
-      bill_picture: ''
+      bill_picture: '',
+      currencyIsEuro: false
     });
 
     var initialEntry = reactive({
@@ -196,7 +211,8 @@ export default {
       created_at: '',
       imageBefore: null, 
       image: null, 
-      bill_picture: ''
+      bill_picture: '',
+      currencyIsEuro: false
     });
 
     var product = reactive({
@@ -226,6 +242,7 @@ export default {
       this.entry.type = this.data.type;
       this.entry.info = this.data.info;
       this.entry.amount = this.data.amount;
+      this.entry.currencyIsEuro = this.data.currencyIsEuro;
 
       var findProduct = this.products.find(product => product.id == this.data.product);
       if(findProduct != null) this.entry.product = findProduct;
@@ -240,6 +257,7 @@ export default {
       this.initialEntry.type = this.data.type;
       this.initialEntry.info = this.data.info;
       this.initialEntry.amount = this.data.amount;
+      this.initialEntry.currencyIsEuro = this.data.currencyIsEuro;
 
       if(findProduct != null) this.initialEntry.product = findProduct;
       else this.initialEntry.product = this.product;
@@ -327,6 +345,7 @@ export default {
         this.entry.amount = newEntry.amount;
         this.entry.product = newEntry.product;
         this.entry.bill_picture = newEntry.bill_picture;
+        this.entry.currencyIsEuro = newEntry.currencyIsEuro;
 
         if (newEntry.bill_picture != null) {
           const response = await supabase.storage
@@ -360,6 +379,11 @@ export default {
         reader.readAsDataURL(input.files[0]);
       }
 
+    },
+    changeCurrency(toEuro) {
+      this.entry.currencyIsEuro = toEuro
+
+      this.entry.amount = 0
     },
     async validateEntry(pressed, productChanged) {
       var nameInput = document.getElementById('entry-name');
@@ -395,6 +419,16 @@ export default {
       if (pressed) nameInput.value = nameInput.value.trim();
       if (pressed) infoInput.value = infoInput.value.trim();
       var valid = true;
+      
+      if(pressed && this.entry.amount != 0) {
+        if(this.entry.currencyIsEuro) {
+          this.entry.amount = parseFloat(this.entry.amount).toFixed(2).toString();
+          amountInput.value = this.entry.amount
+        } else {
+          this.entry.amount = parseFloat(this.entry.amount).toFixed(0).toString();
+          amountInput.value = this.entry.amount
+        }
+      } 
 
       if (nameInput.value.trim().length < 3) {
         nameInput.classList.remove('is-valid');
@@ -417,7 +451,7 @@ export default {
         amountInput.classList.add('is-valid');
       }
 
-      if (typeInput.value == 'Typ') {
+      if (typeInput.value == '') {
         typeInput.classList.remove('is-valid');
         typeInput.classList.add('is-invalid');
         valid = false;
@@ -451,6 +485,11 @@ export default {
 </script>
 
 <style scoped>
+
+.btn-primary {
+  color: white;
+}
+
 .overlay {
   position: fixed;
   width: 100%; 
@@ -564,6 +603,10 @@ img {
  padding-left: 5px;
 }
 
+.fa-euro-sign {
+ padding-left: 5px;
+}
+
 .fa-circle-info{
   padding-left: 2px;
 }
@@ -584,5 +627,8 @@ img {
   color: red;
 }
 
+.currency-input {
+  width: 90px;
+}
 
 </style>

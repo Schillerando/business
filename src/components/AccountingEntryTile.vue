@@ -20,7 +20,7 @@
 
     <p class="name">{{ entry.name }}</p>
       
-    <p class="price" :class="{ income: entry.amount > 0, expense: entry.amount < 0  }">{{ entry.amount > 0 ? "+" : '' }}{{ entry.amount }} $</p>
+    <p class="price" :class="{ income: entry.amount > 0, expense: entry.amount < 0  }">{{ entry.amount > 0 ? "+" : '' }}{{ entry.amount }} {{ entry.currencyIsEuro ? '€' : '$' }}</p>
 
     <!--
     <button @click="edit = true" class="btn btn-primary">
@@ -61,7 +61,8 @@ export default {
       created_at: '',
       imageBefore: null, 
       image: null, 
-      bill_picture: ''
+      bill_picture: '',
+      currencyIsEuro: false
     });
 
     const store = useStore();
@@ -82,6 +83,7 @@ export default {
       this.entry.info = this.data.info;
       this.entry.amount = this.data.amount;
       this.entry.bill_picture = this.data.bill_picture;
+      this.entry.currencyIsEuro = this.data.currencyIsEuro;
 
       if (this.data.bill_picture != null) {
         const response = await supabase.storage

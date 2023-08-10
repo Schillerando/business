@@ -221,7 +221,11 @@ export default {
         }
       
       } else if(this.sortBy == 'amount') {
+
         this.sortedShownItems.sort((a, b) => {
+        if(a.currencyIsEuro) a.amount = a.amount * 10
+        if(b.currencyIsEuro) b.amount = b.amount * 10 
+
         if (
           typeof a[this.sortBy] == 'string' &&
           typeof b[this.sortBy] == 'string'
