@@ -85,6 +85,15 @@ export default {
       this.entry.bill_picture = this.data.bill_picture;
       this.entry.currencyIsEuro = this.data.currencyIsEuro;
 
+      if(this.data.users != undefined) {
+        this.entry.userName = this.data.users.name
+      } else {
+        this.entry.userName = this.data.userName
+      }
+
+      this.entry.created_at = this.data.created_at;
+
+
       if (this.data.bill_picture != null) {
         const response = await supabase.storage
           .from('bill-pictures/' + this.store.getters.getUserCompany.id)

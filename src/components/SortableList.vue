@@ -387,6 +387,7 @@ export default {
   },
   watch: {
     items: function () {
+      console.log("test")
       this.generateCategories();
       this.generateShownItems();
     },

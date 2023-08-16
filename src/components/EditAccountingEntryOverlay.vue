@@ -15,6 +15,12 @@
         </div>
       </div>
       <div class="card-body scroll mt-4">
+        <div class="details" v-if="userName != ''">
+          <span class="day">{{ day }}</span>
+          <span class="time">{{ time }}</span>
+          <span class="userName">{{ userName }}</span>
+        </div>
+
         <form class="needs-validation" novalidate>
 
           <div class="input-group mb-3">
@@ -165,6 +171,7 @@ import AlertPopup from '../components/AlertPopup.vue';
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.js';
 import {v4 as uuidv4} from 'uuid';
 import { supabase } from '@/supabase';
+import { reformatDate, cutSecondsFromTime } from '@/helpers';
 
 
 export default {
@@ -183,7 +190,10 @@ export default {
       successAlertInfo: 'Aktion wurde erfolgreich durchgeführt',
       failureAlertTitle: 'Fehler',
       failureAlertInfo: 'Es ist ein Fehler aufgetreten!',
-      delete: false
+      delete: false, 
+      day: '',
+      time: '',
+      userName: ''
     }
   },
   setup() {
@@ -243,6 +253,11 @@ export default {
       this.entry.info = this.data.info;
       this.entry.amount = this.data.amount;
       this.entry.currencyIsEuro = this.data.currencyIsEuro;
+
+      this.day = reformatDate(this.data.created_at.split('T')[0]);
+      this.time = cutSecondsFromTime(this.data.created_at.split('T')[1]);
+
+      this.userName = this.data.userName
 
       var findProduct = this.products.find(product => product.id == this.data.product);
       if(findProduct != null) this.entry.product = findProduct;
@@ -346,6 +361,8 @@ export default {
         this.entry.product = newEntry.product;
         this.entry.bill_picture = newEntry.bill_picture;
         this.entry.currencyIsEuro = newEntry.currencyIsEuro;
+        this.entry.created_at = newEntry.created_at
+        this.entry.userName = newEntry.userName;
 
         if (newEntry.bill_picture != null) {
           const response = await supabase.storage
@@ -629,6 +646,15 @@ img {
 
 .currency-input {
   width: 90px;
+}
+
+.details {
+  text-align: left;
+  margin: -15px 0 15px 0;
+}
+
+.time {
+  padding: 0 10px;
 }
 
 </style>

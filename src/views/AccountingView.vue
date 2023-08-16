@@ -40,8 +40,8 @@
                   <h1>{{ profit }} $</h1>
                   <div class="euroProfit">{{ euroProfit }} €</div>
 
-                  <a id="tooltip" v-if="profit > 0" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="mit 20% Umtauschsteuer">
+                  <a id="tooltip" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="mit Einberechnung von Umtauschsteuer">
                     <i class="fa-regular fa-circle-question fa-lg"></i>
                   </a>
 
@@ -83,9 +83,13 @@
       <div class="col-lg-6">
 
         <div class="canvas">
-          <canvas :key="key" id="total-chart"></canvas>
+          <div id="total-charts"> 
+            <canvas class="total-chart"></canvas>
+          </div>
 
-          <canvas :key="key" id="type-chart"></canvas>
+          <div id="type-charts">
+            <canvas class="type-chart"></canvas>
+          </div>
         </div>
 
       </div>
@@ -122,6 +126,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 // eslint-disable-next-line no-unused-vars
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js/auto'
+import { reformatDate, cutSecondsFromTime } from '@/helpers';
 
 export default {
   name: 'AccountingView',
@@ -183,7 +188,7 @@ export default {
 
     const { data, error } = await supabase
       .from('accounting')
-      .select()
+      .select("*, users(name)")
       .eq('company_id', this.companyData.id);
 
     if (error) throw error;
@@ -196,11 +201,11 @@ export default {
   },
   methods: {
     downloadCSV() {
-      let exportString = 'Titel;Art;Währung;Betrag;Datum;Beschreibung'
-      const entries = this.entries
+      let exportString = 'Titel;Art;Währung;Betrag;Datum;Uhrzeit;Ersteller;Beschreibung'
+      const entries = this.entries.sort((a, b) => a.created_at.localeCompare(b.created_at));
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i]
-        exportString += `\n${entry.name};${entry.type.replace('+', '').replace('-', '')};${entry.currencyIsEuro ? 'Euro' : 'Schilli'};${entry.amount};${entry.created_at};${entry.info}`
+        exportString += `\n${entry.name};${entry.type.replace('+', '').replace('-', '')};${entry.currencyIsEuro ? 'Euro' : 'Schilli'};${entry.amount};${reformatDate(entry.created_at.split('T')[0])};${cutSecondsFromTime(entry.created_at.split('T')[1])};${entry.users.name};${entry.info}`
       }
       let link = document.createElement("a");
       link.textContent = "download";
@@ -379,10 +384,24 @@ export default {
 
       })
 
-      if (this.totalChart != null) this.totalChart.destroy()
+      if (this.totalChart != null) {
+        this.totalChart.destroy()
+
+        const charts = document.getElementsByClassName('total-chart')
+        for(var i=0; i<charts.length; i++) {
+          charts[i].remove();
+        }
+
+        const wrapper = document.getElementById('total-charts')
+        const child = document.createElement('canvas')
+        child.classList.add('total-chart')
+        wrapper.appendChild(child)
+        child.style.marginBottom = '50px'
+      } 
       this.totalChart = null
 
-      const ctx = document.getElementById('total-chart');
+      const charts = document.getElementsByClassName('total-chart')
+      const ctx = charts[charts.length - 1];
       this.totalChart = new ChartJS(ctx, {
         data: {
           labels: labels,
@@ -461,10 +480,24 @@ export default {
       sonstIndex = labels.indexOf('Sonstige Ausgabe')
       if (sonstIndex != -1) labels[sonstIndex] = 'Sonst. Ausg.'
 
-      if (this.typeChart != null) this.typeChart.destroy()
+      if (this.typeChart != null) {
+        this.typeChart.destroy()
+
+        const charts = document.getElementsByClassName('type-chart')
+        for(var i=0; i<charts.length; i++) {
+          charts[i].remove();
+        }
+
+        const wrapper = document.getElementById('type-charts')
+        const child = document.createElement('canvas')
+        child.classList.add('type-chart')
+        wrapper.appendChild(child)
+        child.style.marginBottom = '50px'
+      } 
       this.typeChart = null
 
-      const ctx = document.getElementById('type-chart');
+      const charts = document.getElementsByClassName('type-chart')
+      const ctx = charts[charts.length - 1];
       this.typeChart = new ChartJS(ctx, {
         data: {
           labels: labels,
@@ -568,12 +601,12 @@ h3 {
   margin-bottom: 50px;
 }
 
-#total-chart {
+.total-chart {
   width: 100%;
   margin-bottom: 50px;
 }
 
-#type-chart {
+.type-chart {
   width: 100%;
   margin-bottom: 50px;
 }
@@ -594,5 +627,9 @@ h3 {
 
 .download-button {
   margin: 5px 5px;
+}
+
+.hide {
+  display: none;
 }
 </style>

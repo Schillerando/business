@@ -536,6 +536,11 @@ const store = createStore({
           
         }
 
+        const newEntry = this.getters.getCurrentEntry
+        newEntry.userName = this.getters.getUser.user_metadata.name
+        console.log(newEntry.userName)
+        commit('setCurrentEntry', newEntry)
+
         commit('setState', 'success');
       } catch (error) {
         commit('setCurrentEntry', null)
