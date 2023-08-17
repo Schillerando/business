@@ -80,7 +80,7 @@
 
       </div>
 
-      <div v-if="this.entries.length > 0" class="col-lg-6">
+      <div :class="{ invisible: this.entries.length == 0 }" class="col-lg-6">
 
         <div class="canvas">
           <div id="total-charts"> 
@@ -632,4 +632,9 @@ h3 {
 .hide {
   display: none;
 }
+
+.invisible {
+  height: 0;
+}
+
 </style>
