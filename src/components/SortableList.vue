@@ -1,8 +1,8 @@
 <template>
-  <div class="row" :class="{ noSearch: noSearch }">
-    <div class="col-md-3 col-xl-4"></div>
+  <div class="row" :class="{ noSearch: noSearch, 'no-margin': element == 'AccountingEntryTile' }">
+    <div :class="{'col-md-3 col-xl-4': element == 'ProductTile', 'col-md-2': element == 'AccountingEntryTile' }"></div>
     <div v-if="noSearch" class="search-comp col-12 col-md-6 col-xl-4"></div>
-    <div v-else class="search-comp col-12 col-md-6 col-xl-4">
+    <div v-else :class="{'col-12 col-md-6 col-xl-4': element == 'ProductTile', 'col-md-8': element == 'AccountingEntryTile'  }">
       <input
         class="search form-control form-control-lg me-2"
         type="search"
@@ -33,10 +33,10 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3 col-xl-4"></div>
-    <div class="col-md-3 col-xl-4"></div>
+    <div :class="{'col-md-3 col-xl-4': element == 'ProductTile', 'col-md-2': element == 'AccountingEntryTile' }"></div>
+    <div :class="{'col-md-3 col-xl-4': element == 'ProductTile', 'col-md-2': element == 'AccountingEntryTile' }"></div>
 
-    <div class="col-12 col-md-6 col-xl-4">
+    <div :class="{'col-12 col-md-6 col-xl-4': element == 'ProductTile', 'col-md-8': element == 'AccountingEntryTile' }">
       <div class="settings">
         <button
           class="direction btn btn-outline-secondary"
@@ -46,19 +46,30 @@
           <i v-else class="fa-solid fa-arrow-up fa-lg"></i>
         </button>
         <select
-          v-if="element == 'CompanyTile'"
-          @change="companyCategoryChange"
-          id="companyCategory"
+          v-if="element == 'AccountingEntryTile'"
+          @change="entryCategoryChange"
+          id="entryCategory"
           class="form-select form-select-md mb-3"
           aria-label=".form-select-lg example"
         >
-          <option value="" selected>Kategorie</option>
-          <option value="Gastronomie">Gastronomie</option>
-          <option value="Kultur">Kultur</option>
-          <option value="Dienstleistung">Dienstleistung</option>
-          <option value="Gastronomie & Dienstleistung">
-            Gastronomie & Dienstleistung
-          </option>
+        <option value="" selected>Typ</option>
+        <option value="Einnahmen">
+          Alle Einnahmen
+        </option>
+        <option value="Ausgaben">
+          Alle Ausgaben
+        </option>
+        <option value="Verkauf+">
+          Verkauf
+        </option>
+        <option value="Einkauf-">Einkauf</option>
+        <option value="Gehalt-">Gehalt</option>
+        <option value="Miete-">Miete</option>
+        <option value="Steuern-">Steuern</option>
+        <option value="Sonstige Einnahme+">
+          Sonstige Einnahmen
+        </option>
+        <option value="Sonstige Ausgabe-">Sonstige Ausgaben</option>
         </select>
         <select
           v-else
@@ -77,15 +88,16 @@
           <option value="Sonstiges">Sonstiges</option>
         </select>
         <select
-          v-if="element == 'CompanyTile'"
-          @change="companySortChange"
-          id="companySort"
+          v-if="element == 'AccountingEntryTile'"
+          @change="entrySortChange"
+          id="entrySort"
           class="form-select form-select-right form-select-md mb-3"
           aria-label=".form-select-lg example"
         >
-          <option value="relevance" selected>Sortieren</option>
-          <option value="relevance">Relevanz</option>
-          <option value="review">Bewertung</option>
+          <option value="created_at" selected>Sortieren</option>
+          <option value="amount">Betrag</option>
+          <option value="created_at">Datum</option>
+          <option value="category">Typ</option>
           <option value="name">Name</option>
         </select>
         <select
@@ -104,20 +116,30 @@
       </div>
     </div>
   </div>
-  <div class="sortable-list" ref="sortableList">
+  <div :class="{'product-list': element == 'ProductTile', 'entry-list': element == 'AccountingEntryTile'}" ref="sortableList">
     <div v-for="ssItem in sortedShownItems" v-bind:key="ssItem.id">
       <component
+        v-if="element == 'ProductTile'"
         :is="element"
         :data="ssItem"
         @deleteProduct="deleteProduct($event)"
+      ></component>
+      <component
+        v-else
+        :is="element"
+        :data="ssItem"
+        :products="products"
+        :key="ssItem.id"
+        @deleteEntry="deleteEntry($event)"
+        @stopEditingEntry="stopEditingEntry($event)"
       ></component>
     </div>
     <div v-for="index in 2" :key="index" class="item"></div>
   </div>
 
   <div v-if="shownItems.length == 0 && !loading" style="margin-bottom: 50px">
-    <h4 class="empty" v-if="element == 'CompanyTile'">
-      Es wurden keine Unternehmen gefunden
+    <h4 class="empty" v-if="element == 'AccountingEntryTile'">
+      Es wurden keine Einträge gefunden
     </h4>
     <h4 class="empty" v-else>Es wurden keine Produkte gefunden</h4>
   </div>
@@ -126,13 +148,13 @@
 <script>
 /* eslint-disable no-unused-vars */
 import ProductTile from './ProductTile.vue';
-import CompanyTile from './CompanyTile.vue';
+import AccountingEntryTile from './AccountingEntryTile.vue';
 import router from '@/router';
 /* eslint-enable no-unused-vars */
 
 export default {
   name: 'SortableList',
-  emits: ['deleteProduct', 'editProduct'],
+  emits: ['deleteProduct', 'deleteEntry', 'stopEditingEntry'],
   data() {
     return {
       categories: [],
@@ -140,7 +162,7 @@ export default {
       searchString: '',
       shownItems: [],
       sortedShownItems: [],
-      sortBy: this.element == 'CompanyTile' ? 'relevance' : '', //empty string if no sort is needed
+      sortBy: this.element == 'AccountingEntryTile' ? 'created_at' : '', //empty string if no sort is needed
       dir: 'up', //or 'down'
       directLinks: [],
       focus: false,
@@ -153,6 +175,7 @@ export default {
     'noSearch',
     'sortByCategories',
     'showCategory',
+    'products'
   ],
   methods: {
     sort: function () {
@@ -161,22 +184,59 @@ export default {
         this.shuffleArray(this.sortedShownItems);
         return;
       } else if (this.sortBy == 'category') {
-        const categoryOrder = [
-          'Essen',
-          'Trinken',
-          'Gegenstand',
-          'Dienstleistung',
-          'Aktivität',
-          'Event',
-          'Sonstiges',
-        ];
 
-        for (var i = 0; i < this.sortedShownItems.length; i++) {
-          console.log(this.sortedShownItems[i].categories[0]);
-          this.sortedShownItems[i].category = categoryOrder.indexOf(
-            this.sortedShownItems[i].categories[0]
-          );
+        var categoryOrder = []
+        if(this.element == 'ProductTile') {
+          categoryOrder = [
+            'Essen',
+            'Trinken',
+            'Gegenstand',
+            'Dienstleistung',
+            'Aktivität',
+            'Event',
+            'Sonstiges',
+          ];
+
+          for (var i = 0; i < this.sortedShownItems.length; i++) {
+            this.sortedShownItems[i].category = categoryOrder.indexOf(
+              this.sortedShownItems[i].categories[0]
+            );
+          }
+        } else {
+          categoryOrder = [
+            'Verkauf+',
+            'Einkauf-',
+            'Gehalt-',
+            'Miete-',
+            'Steuern-',
+            'Sonstige Einnahmen+',
+            'Sonstige Ausgaben-',
+          ];
+
+          for (var j = 0; j < this.sortedShownItems.length; j++) {
+            this.sortedShownItems[j].category = categoryOrder.indexOf(
+              this.sortedShownItems[j].type
+            );
+          }
         }
+      
+      } else if(this.sortBy == 'amount') {
+
+        this.sortedShownItems.sort((a, b) => {
+        if(a.currencyIsEuro) a.amount = a.amount * 10
+        if(b.currencyIsEuro) b.amount = b.amount * 10 
+
+        if (
+          typeof a[this.sortBy] == 'string' &&
+          typeof b[this.sortBy] == 'string'
+        )
+          return a[this.sortBy].localeCompare(b[this.sortBy]);
+        if (Math.abs(a[this.sortBy]) > Math.abs(b[this.sortBy])) return 1;
+        if (Math.abs(a[this.sortBy]) < Math.abs(b[this.sortBy])) return -1;
+        else return 0;
+        });
+        if (this.dir == 'down') this.sortedShownItems.reverse();
+        return;
       }
 
       this.sortedShownItems.sort((a, b) => {
@@ -189,7 +249,8 @@ export default {
         if (a[this.sortBy] < b[this.sortBy]) return -1;
         else return 0;
       });
-      if (this.dir == 'down') this.sortedShownItems.reverse();
+      if (this.dir == 'up' && this.sortBy == 'created_at') this.sortedShownItems.reverse();
+      else if (this.dir == 'down' && this.sortBy != 'created_at') this.sortedShownItems.reverse();
       return;
     },
     searchForString: function (string, object) {
@@ -200,8 +261,8 @@ export default {
         if (!(object instanceof Array)) {
           let values = [];
           let searchKeys = [];
-          if (this.element == 'CompanyTile')
-            searchKeys = ['name', 'location', 'info'];
+          if (this.element == 'AccountingEntryTile')
+            searchKeys = ['name', 'type', 'info'];
           else searchKeys = ['name', 'company_name', 'info'];
           searchKeys.forEach((key) => values.push(object[key]));
           object = values;
@@ -209,6 +270,7 @@ export default {
         for (let i = 0; i < object.length; i++) {
           instances += this.searchForString(string, object[i]);
         }
+
         return instances;
       }
       if (typeof object != 'string') return 0;
@@ -222,7 +284,18 @@ export default {
         let item = this.items[i];
         let matches = true;
         if (this.searchForString(this.searchString, item) == 0) matches = false;
-        if (item.categories == null && this.chosenCategories.length != 0) {
+        
+        else if(this.element == "AccountingEntryTile") {
+          
+          if(this.chosenCategories.includes(item.type)) {
+            matches = true;
+          } 
+          else if(this.chosenCategories.includes('Einnahmen') && item.type.includes('+')) matches = true;
+          else if(this.chosenCategories.includes('Ausgaben') && item.type.includes('-')) matches = true;
+          else if(this.chosenCategories.length == 0) matches = true;
+          else matches = false;
+        }
+        else if (item.categories == null && this.chosenCategories.length != 0) {
           matches = false;
         } else {
           for (let j = 0; j < this.chosenCategories.length; j++) {
@@ -254,8 +327,8 @@ export default {
         }
       }
     },
-    companyCategoryChange() {
-      const select = document.getElementById('companyCategory');
+    entryCategoryChange() {
+      const select = document.getElementById('entryCategory');
       const value = select.value;
       if (value == '') this.chosenCategories = [];
       else this.chosenCategories = [value];
@@ -266,8 +339,8 @@ export default {
       if (value == '') this.chosenCategories = [];
       else this.chosenCategories = [value];
     },
-    companySortChange() {
-      const select = document.getElementById('companySort');
+    entrySortChange() {
+      const select = document.getElementById('entrySort');
       const value = select.value;
       this.sortBy = value;
       console.log(value);
@@ -298,6 +371,12 @@ export default {
     },
     deleteProduct(productData) {      
       this.$emit('deleteProduct', productData)
+    },
+    deleteEntry(entryData) {      
+      this.$emit('deleteEntry', entryData)
+    },
+    stopEditingEntry(entryData) {
+      this.$emit('stopEditingEntry', entryData)
     }
   },
   mounted() {
@@ -308,6 +387,7 @@ export default {
   },
   watch: {
     items: function () {
+      console.log("test")
       this.generateCategories();
       this.generateShownItems();
     },
@@ -339,21 +419,31 @@ export default {
       this.generateShownItems();
     },
   },
-  components: { ProductTile, CompanyTile },
+  components: { ProductTile, AccountingEntryTile },
 };
 </script>
 
 <style scoped>
-.sortable-list {
+.product-list {
   margin: 0 20px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+}
+
+.entry-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 1fr);
 }
 
 .row {
   padding-top: 0;
   margin-top: 0;
   margin: 0 20px;
+}
+
+.no-margin {
+  margin: 0 -10px;
 }
 
 .direction {

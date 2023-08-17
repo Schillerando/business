@@ -77,7 +77,7 @@
               :value="product.categories[0]"
               @change="validateProduct(false)"
             >
-              <option selected>Kategorie</option>
+              <option value="" selected>Kategorie</option>
               <option value="Essen">Essen</option>
               <option value="Trinken">Trinken</option>
               <option value="Dienstleistung">Dienstleistung</option>
@@ -559,7 +559,11 @@ img {
 }
 
 .fa-circle-info{
-  padding-left: 1px;
+  padding-left: 2px;
+}
+
+.fa-list{
+  padding-left: 2px;
 }
 
 .switches {

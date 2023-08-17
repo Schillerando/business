@@ -118,9 +118,6 @@ router.beforeEach(async (to, from, next) => {
     userCompany = store.getters.getUserCompany;
   }
 
-  console.log(user);
-  console.log(userCompany);
-
   if ((to.meta.auth || to.meta.company) && user == null) {
     window.location.replace(process.env.VUE_APP_MAIN_URL + '/auth?redirect=ext_' + to.path)
     next();

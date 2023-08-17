@@ -1,6 +1,6 @@
 <template>
   <hr />
-  <header class="navbar navbar-expand-lg navbar-light sticky-top">
+  <header @click="changeLinkColors" class="navbar navbar-expand-lg navbar-light sticky-top">
     <router-link to="/" class="brand navbar-brand">
       <img class="logo" src="@/assets/logo_transparent.png" />
       Business
@@ -36,7 +36,6 @@
             Schillerando
           </a>
         </li>
-        <div class="indicator" id="indicator"></div>
       </ul>
     </div>
   </header>
@@ -54,35 +53,35 @@ export default {
     };
   },
   mounted() {
-    /*
-    const url = window.location.href.split('/');
-    const path = url[url.length-1];
-    const indicator = document.getElementById('indicator');
-    const links = document.getElementsByClassName('nav-link');
-
-    console.log(links[0].innerWidth);
-
-    switch(path) {
-      case "produkte":
-        indicator.style.visibility = "visible";
-        indicator.style.width = links[0].style.width + 'px'
-        break;
-      case "unternehmen":
-        indicator.style.visibility = "visible";
-        indicator.style.width = links[1].style.width + 'px'
-        break;
-      case "account":
-        indicator.style.visibility = "visible";
-        indicator.style.width = links[2].style.width + 'px'
-        break;
-      default:
-        indicator.style.visibility = "hidden";
-        break;
-    }
-    */
+    this.changeLinkColors()
   },
   methods: {
-    animateIndicator() {},
+    changeLinkColors() {
+      const url = window.location.href.split('/');
+      const path = url[url.length-1];
+      const links = document.getElementsByClassName('nav-link');
+
+      for(var i = 0; i < links.length; i++) {
+        links[i].style.color = '#000'
+      }
+
+      switch(path) {
+        case "buchhaltung":
+          links[0].style.color = '#00a100'
+          break;
+        case "services":
+          links[1].style.color = '#00a100'
+          break;
+        case "produkte":
+          links[2].style.color = '#00a100'
+          break;
+        case "einstellungen":
+          links[3].style.color = '#00a100'  
+          break;
+        default:
+          break;
+      }
+    }
   },
 };
 </script>

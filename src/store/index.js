@@ -9,7 +9,8 @@ const store = createStore({
     session: null,
     userCompany: null,
     state: undefined,
-    currentProduct: null
+    currentProduct: null,
+    currentEntry: null
   },
   mutations: {
     setUser(state, payload) {
@@ -24,6 +25,9 @@ const store = createStore({
     setCurrentProduct(state, payload) {
       state.currentProduct = payload;
     },
+    setCurrentEntry(state, payload) {
+      state.currentEntry = payload;
+    },
   },
   getters: {
     getUser(state) {
@@ -37,6 +41,9 @@ const store = createStore({
     },
     getCurrentProduct(state) {
       return state.currentProduct;
+    },
+    getCurrentEntry(state) {
+      return state.currentEntry;
     },
   },
   actions: {
@@ -397,7 +404,7 @@ const store = createStore({
 
         if (product.image != null && product.imageBefore != product.image) {
 
-          {
+          if(product.imageBefore != null){
             const { error } = await supabase
               .storage
               .from('products-pictures')
@@ -453,7 +460,7 @@ const store = createStore({
             const { error } = await supabase
               .storage
               .from('products-pictures')
-              .remove([product.product_picture])
+              .remove(product.product_picture)
 
             if (error) throw error;
           }
@@ -462,6 +469,171 @@ const store = createStore({
         const { error } = await supabase.from('products')
           .delete()
           .eq('id', product.id)
+
+        if (error) throw error;
+
+        commit('setState', 'success');
+      } catch (error) {
+        commit('setState', 'failure');
+        console.log(error.error_description || error.message);
+      }
+    },
+
+    async addEntry({ commit }, entry) {
+      try {
+        console.log(entry)
+
+        commit('setState', 'loading');
+
+        const { data, error } = await supabase.from('accounting').insert({
+          name: entry.name,
+          info: entry.info,
+          type: entry.type,
+          amount: entry.type.includes('-') ? -Math.abs(entry.amount) : Math.abs(entry.amount),
+          product: entry.product.id,
+          user_id: this.getters.getUser.id,
+          company_id: this.getters.getUserCompany.id,
+          currencyIsEuro: entry.currencyIsEuro
+        })
+        .select()
+
+        if (error) throw error;
+
+        commit('setCurrentEntry', data[0])
+
+        if (entry.image != null) {
+
+          var type = entry.image.substring(entry.image.indexOf(':'), entry.image.indexOf(';')).replace(':', '')
+          var fileName = data[0].id + '.' + type.split('/')[1]
+
+          {
+            console.log(entry.image)
+
+            const { error } = await supabase
+              .storage
+              .from('bill-pictures/' + this.getters.getUserCompany.id)
+              .upload(fileName, entry.image, {
+                cacheControl: '3600',
+                upsert: true,
+                contentType: type
+              })
+
+            if (error) throw error;
+
+          }
+
+          {
+            const { data, error } = await supabase
+              .from('accounting')
+              .update({ bill_picture: fileName })
+              .eq('id', this.getters.getCurrentEntry.id)
+              .select()
+
+            if (error) throw error;
+
+            commit('setCurrentEntry', data[0])
+          }
+          
+        }
+
+        const newEntry = this.getters.getCurrentEntry
+        newEntry.userName = this.getters.getUser.user_metadata.name
+        console.log(newEntry.userName)
+        commit('setCurrentEntry', newEntry)
+
+        commit('setState', 'success');
+      } catch (error) {
+        commit('setCurrentEntry', null)
+        commit('setState', 'failure');
+        console.log(error.error_description || error.message);
+      }
+    },
+    async updateEntry({ commit }, entry) {
+      try {
+        commit('setState', 'loading');
+
+        const { data, error } = await supabase.from('accounting').update({
+          name: entry.name,
+          info: entry.info,
+          type: entry.type,
+          amount: entry.type.includes('-') ? -Math.abs(entry.amount) : Math.abs(entry.amount),
+          product: entry.product.id,
+          currencyIsEuro: entry.currencyIsEuro
+        })
+        .eq('id', entry.id)
+        .select()
+
+        if (error) throw error;
+
+        commit('setCurrentEntry', data[0])
+
+        if (entry.image != null && entry.imageBefore != entry.image) {
+
+          if(entry.imageBefore != null) {
+            const { error } = await supabase
+              .storage
+              .from('bill-pictures/' + this.getters.getUserCompany.id)
+              .remove(data[0].bill_picture)
+
+            if (error) throw error;
+          }
+
+          var type = entry.image.substring(entry.image.indexOf(':'), entry.image.indexOf(';')).replace(':', '')
+          var fileName = entry.id + '.' + type.split('/')[1]
+
+          {
+            const { error } = await supabase
+              .storage
+              .from('bill-pictures/' + this.getters.getUserCompany.id)
+              .upload(fileName, entry.image, {
+                cacheControl: '3600',
+                upsert: true,
+                contentType: type
+              })
+
+            if (error) throw error;
+
+          }
+
+          {
+            const { data, error } = await supabase
+              .from('accounting')
+              .update({ bill_picture: fileName })
+              .eq('id', entry.id)
+              .select()
+
+              if (error) throw error;
+
+              commit('setCurrentEntry', data[0])
+          }
+        }
+
+        commit('setState', 'success');
+      } catch (error) {
+        commit('setCurrentEntry', null)
+        commit('setState', 'failure');
+        console.log(error.error_description || error.message);
+      }
+    },
+    async deleteEntry({ commit }, entry) {
+      try {
+        commit('setState', 'loading');
+
+        if (entry.product_picture != null) {
+
+          {
+            const { error } = await supabase
+              .storage
+              .from('bill-pictures/' + this.getters.getUserCompany.id)
+              .remove(entry.bill_picture)
+
+            if (error) throw error;
+          }
+        }
+
+        const { error } = await supabase.from('accounting')
+          .delete()
+          .eq('id', entry.id)
 
         if (error) throw error;
 
