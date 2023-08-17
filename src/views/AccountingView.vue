@@ -12,7 +12,7 @@
         CSV (EXCEL)
       </button>
 
-      <button class="btn btn-primary mb-4 download-button" @click="downloadCSV()">
+      <button disabled class="btn btn-primary mb-4 download-button" @click="downloadCSV()">
         PDF
       </button>
     </div>
