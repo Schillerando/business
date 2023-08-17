@@ -80,7 +80,7 @@
 
       </div>
 
-      <div class="col-lg-6">
+      <div v-if="this.entries.length > 0" class="col-lg-6">
 
         <div class="canvas">
           <div id="total-charts"> 
