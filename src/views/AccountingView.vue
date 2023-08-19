@@ -286,16 +286,11 @@ export default {
       this.revenue = this.schilliRevenue + this.euroRevenue * 12.5
       this.expenses = this.schilliExpenses + this.euroExpenses * 12.5
 
-      /*
-      this.profit = this.schilliRevenue - this.schilliExpenses
-      if(this.euroProfit - this.euroRevenue > 0) {
-        this.profit += this.euro
-      }
-      */
-
       this.profit = (this.schilliRevenue - this.schilliExpenses) + (this.euroRevenue - this.euroExpenses) * 12.5;
 
-      this.euroProfit = this.profit * 0.08
+      this.schilliResult = this.schilliRevenue - this.schilliExpenses
+      this.euroResult = this.euroRevenue - this.euroExpenses
+      if(this.schilliResult >= 0) { this.euroProfit = this.euroResult + (this.schilliResult * 0.08); } else { this.euroProfit = this.euroResult + (this.schilliResult * 0.1); }
 
       this.euroRevenue = this.euroRevenue.toFixed(2);
       this.schilliRevenue = this.schilliRevenue.toFixed(0);
