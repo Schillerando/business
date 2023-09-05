@@ -412,7 +412,7 @@ export default {
               stacked: true
             },
             y: {
-              beginAtZero: false,
+              beginAtZero: true,
             }
           },
           responsive: true,
@@ -503,7 +503,7 @@ export default {
         options: {
           scales: {
             y: {
-              beginAtZero: false,
+              beginAtZero: true,
             },
           },
           responsive: true,

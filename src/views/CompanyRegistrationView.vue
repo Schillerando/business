@@ -4,7 +4,7 @@
     <EditProductOverlay v-if="newProduct" :registration="true" @stopEditingProduct="stopEditingProduct($event)" @deleteProduct="deleteProduct()"/>
 
     <div class="container">
-      <div class="row justify-content-center">
+      <div v-if="store.getters.getUser.email.split('@')[1] == 'fsgmarbach.info'" class="row justify-content-center">
         <div class="mb-4">
           <div class="card container-card p-4 pb-0">
             <div class="card-body">
@@ -310,6 +310,14 @@
           </div>
         </div>
       </div>
+
+      <div v-else>
+        <p class="wrong-mail">Um ein Unternehmen zu registrieren, musst du mit deiner Schul-Email (@fsgmarbach.info) angemeldet sein. Ändere deine Email-Adresse oder erstelle einen neuen Account, um dein Unternehmen zu registrieren.</p>
+
+        <button class="btn btn-primary btn-lg account-button" @click="toAccount">
+          Account
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -430,6 +438,9 @@ export default {
     };
   },
   methods: {
+    toAccount() {
+      location.href = process.env.VUE_APP_MAIN_URL + '/account';
+    },
     imageInput() {
       var input = document.getElementById('formFile');
 
@@ -884,4 +895,15 @@ img {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
 }
+
+.wrong-mail {
+  margin-top: 50px;
+  font-size: 1.2rem;
+}
+
+.account-button {
+  margin-top: 20px;
+  font-size: 1.3rem;
+}
+
 </style>
