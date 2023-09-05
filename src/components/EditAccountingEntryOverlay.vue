@@ -60,7 +60,7 @@
               :value="entry.product.id"
               @change="validateEntry(false, true)"
             >
-              <option value="" selected>Produkt</option>
+              <option value="" selected>Angebot</option>
               <option v-for="product in this.products" :key="product.id" :value="product.id">{{ product.name }} | {{ product.price }} $</option>
             </select>
           </div>

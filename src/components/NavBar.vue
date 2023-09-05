@@ -23,8 +23,8 @@
           <router-link class="nav-link" to="/services">Services</router-link>
         </li>
         <li class="nav-item">
-          <router-link class="nav-link" to="/produkte"
-            >Produkte</router-link
+          <router-link class="nav-link" to="/angebote"
+            >Angebote</router-link
           >
         </li>
         <li class="nav-item">
@@ -72,7 +72,7 @@ export default {
         case "services":
           links[1].style.color = '#00a100'
           break;
-        case "produkte":
+        case "angebote":
           links[2].style.color = '#00a100'
           break;
         case "einstellungen":

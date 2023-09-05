@@ -141,7 +141,7 @@
     <h4 class="empty" v-if="element == 'AccountingEntryTile'">
       Es wurden keine Einträge gefunden
     </h4>
-    <h4 class="empty" v-else>Es wurden keine Produkte gefunden</h4>
+    <h4 class="empty" v-else>Es wurden keine Angebote gefunden</h4>
   </div>
 </template>
 

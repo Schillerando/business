@@ -17,7 +17,7 @@ const routes = [
     component: HomeView,
   },
   {
-    path: '/produkte',
+    path: '/angebote',
     name: 'ProductView',
     component: ProductView,
     meta: {

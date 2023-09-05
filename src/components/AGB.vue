@@ -64,7 +64,7 @@
     <br />
     **$ entspricht der Staatswährung, in der die Kosten des ausgewählten Abos bezahlt werden müssen. (1$ ≙ 0,1€)<br />
     <br />
-    Sollten die Abokosten nicht zur vereinbarten Frist bezahlt werden, so hält sich Schillerando das Recht vor, alle Anzeigen und Produkte wieder zu entfernen.<br />
+    Sollten die Abokosten nicht zur vereinbarten Frist bezahlt werden, so hält sich Schillerando das Recht vor, alle Angebote wieder zu entfernen.<br />
     <br />
     Bei zeitlich begrenzten Rabatten auf die Abo Preise, wird der Preis fällig, der zum Zeitpunkt der Auswahl beworben wurde.
     <br />

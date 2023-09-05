@@ -167,7 +167,7 @@
 
               <!-- 2 -->
               <div v-else-if="this.page == 2">
-                <h4>Produkte hinzufügen</h4>
+                <h4>Angebot hinzufügen</h4>
 
                 <div class="list">
                   <div v-for="ssItem in form.products" v-bind:key="ssItem.id" class="product-div">
@@ -182,7 +182,7 @@
                   class="btn btn-primary col-md-9 mt-3 mb-2"
                   style="width: max-content"
                 >
-                  <div class="loading-button">Produkt hinzufügen</div>
+                  <div class="loading-button">Angebot hinzufügen</div>
                   <div class="spinner">
                     <span
                       class="spinner-border spinner-border-sm"

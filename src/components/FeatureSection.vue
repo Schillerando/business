@@ -8,10 +8,10 @@
         :left="true"
         :forCompanies="false"
         image="products.png"
-        title="Produkte"
-        text="Entdecke alle Produkte und Angebote im Staat. Egal ob Essen, Trinken, Aktivitäten oder Sonstiges."
-        :link="mainUrl + '/produkte'"
-        linkTitle="Produkte"
+        title="Angebote"
+        text="Entdecke alle Angebote im Staat. Egal ob Essen, Trinken, Dienstleistung oder Aktivität."
+        :link="mainUrl + '/angebote'"
+        linkTitle="Angebote"
       ></FeatureTile>
       <FeatureTile
         :left="false"
@@ -28,7 +28,7 @@
         image="prices.png"
         title="Preisvergleich"
         text="Vergleiche Preise um immer das günstigste Produkt zu finden und Geld zu sparen."
-        :link="mainUrl + '/produkte'"
+        :link="mainUrl + '/angebote'"
         linkTitle="Preisvergleich"
       ></FeatureTile>
       <FeatureTile

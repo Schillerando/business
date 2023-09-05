@@ -11,7 +11,7 @@
             class="alert alert-warning"
             role="alert"
           >
-            Dein Unternehmen wird noch überprüft. Erst nach Bestätigung werden dein Unternehmen und seine Produkte auf schillerando.de zu sehen sein.
+            Dein Unternehmen wird noch überprüft. Erst nach Bestätigung werden dein Unternehmen und dessen Angebote auf schillerando.de zu sehen sein.
           </div>
         </div>
         

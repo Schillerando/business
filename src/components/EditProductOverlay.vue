@@ -5,7 +5,7 @@
     <div class="card">
       <div class="card-header">
         <div>
-          <h4 class="card-title">Produkt</h4>
+          <h4 class="card-title">Angebot</h4>
           <button
             type="button"
             class="btn-close"
@@ -35,7 +35,7 @@
           @change="imageInput()"
         />
 
-        <p v-if="product.image == null" style="font-weight: 300; font-size: 0.9rem">Füge ein Bild hinzu, welches dein Produkt repräsentiert. (Optimales Format 1:1)</p>
+        <p v-if="product.image == null" style="font-weight: 300; font-size: 0.9rem">Füge ein Bild hinzu, welches dein Angebot repräsentiert. (Optimales Format 1:1)</p>
 
 
         <form class="needs-validation" novalidate>
@@ -416,7 +416,7 @@ export default {
           this.stopEditingProduct()
         } else {
           this.failureAlertTitle = 'Fehler'
-          this.failureAlertInfo = 'Beim Aktualisieren des Produkts ist ein Fehler aufgetreten. Versuche es später erneut.'
+          this.failureAlertInfo = 'Beim Aktualisieren des Angebots ist ein Fehler aufgetreten. Versuche es später erneut.'
           this.successAlertTitle = ''
 
           if(this.registration) {
