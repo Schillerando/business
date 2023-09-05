@@ -3,7 +3,7 @@
     <div v-if="companyData.abo == '' || companyData.abo == null" class="overlay">
       <div class="centered">
         <img class="lock" src="@/assets/lock.png" alt="">
-        <button v-if="userData.id == userData.user_uid" class="btn btn-primary" @click="router.push('updateAbo')" >Abo auswählen</button>
+        <button v-if="userData.id == companyData.user_uid" class="btn btn-primary" @click="router.push('updateAbo')" >Abo auswählen</button>
         <h4 v-else class="mt-3">Der Geschäftsführer deines Unternehmens muss ein Abo auswählen um Zugriff zu erhalten!</h4>
       </div>
     </div>
