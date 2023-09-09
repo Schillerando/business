@@ -198,7 +198,7 @@
               <div v-else-if="this.page == 3">
                 <h4 class="pt-4">Abo wählen</h4>
 
-                <AboOptions :abo="form.abo" @chooseAbo="chooseAbo($event)"></AboOptions>
+                <AboOptions :abo="form.abo" :later="true" @chooseAbo="chooseAbo($event)"></AboOptions>
 
               </div>
 

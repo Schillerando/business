@@ -80,7 +80,7 @@
       </div>
     </div>
 
-    <div class="col-12" style="margin-bottom: 40px;">
+    <div v-if="later" class="col-12" style="margin-bottom: 40px;">
       <div
         class="card mb-3 rounded-3 shadow-sm"
         style="text-align: center"
@@ -112,7 +112,7 @@ import CompanyBadge from "./CompanyBadge.vue"
 
 export default {
   name: 'AboOptions',
-  props: ['abo'],
+  props: ['abo', 'later'],
   components: {
     CompanyBadge,
   },
