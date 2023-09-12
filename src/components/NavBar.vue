@@ -11,6 +11,7 @@
       data-bs-toggle="collapse"
       data-bs-target="#navbarToggler"
       aria-controls="navbarToggler"
+      id="nav-button"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -54,6 +55,19 @@ export default {
   },
   mounted() {
     this.changeLinkColors()
+
+    this.$nextTick(function () {
+      window.addEventListener('scroll', function () {
+        const navBar = document.getElementById('navbarToggler');
+
+        if (navBar.classList.contains('show')) {
+          const navButton = document.getElementById('nav-button');
+
+          navBar.classList.remove('show');
+          navButton['aria-expanded'] = false;
+        }
+      });
+    });
   },
   methods: {
     changeLinkColors() {
