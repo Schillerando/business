@@ -294,7 +294,7 @@ const store = createStore({
 
         this.dispatch('startUserCompanySubscription');
 
-        await router.replace('/einstellungen');
+        await router.replace('/companyRegistrated');
       } catch (error) {
         commit('setState', 'failure');
         console.log(error.error_description || error.message);

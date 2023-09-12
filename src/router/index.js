@@ -4,6 +4,7 @@ import ProductView from '../views/ProductView';
 import ServiceView from '../views/ServiceView';
 import SettingsView from '../views/SettingsView';
 import CompanyRegistrationView from '../views/CompanyRegistrationView';
+import CompanyRegistratedView from '../views/CompanyRegistratedView';
 import AccountingView from '../views/AccountingView';
 import AGBView from '../views/AGBView';
 import UpdateAboView from '../views/UpdateAboView';
@@ -60,6 +61,16 @@ const routes = [
     meta: {
       footer: false,
       company: false,
+      auth: true
+    },
+  },
+  {
+    path: '/companyRegistrated',
+    name: 'CompanyRegistratedView',
+    component: CompanyRegistratedView,
+    meta: {
+      footer: false,
+      company: true,
       auth: true
     },
   },
