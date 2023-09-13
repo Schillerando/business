@@ -254,6 +254,85 @@
           </div>
         </div>
 
+        <div class="col-lg-8">
+          <div class="card m-1">
+            <div class="card-header">Extras</div>
+            <div class="card-body">
+
+              <form class="needs-validation" novalidate>
+                <h5>Instagram</h5>
+
+                <div class="input-group mb-3">
+                  <span class="input-group-text"
+                    ><i class="fa-brands fa-instagram fa-lg"></i></span>
+                  <input
+                    type="text"
+                    id="company-instagram"
+                    class="form-control"
+                    placeholder="Instagram Name"
+                    @input="validateExtrasChange(false)"
+                    :value="companyData.socials['instagram']"
+                    :disabled="!isExtrasEditing"
+                    required
+                  />
+                </div>
+              </form>
+
+              <h5 class="mt-4">Standort</h5>
+
+              <p style="text-align: left; font-size: 1rem; font-weight: 300;" v-if="isExtrasEditing">Wähle möglichst genau den Standort deines Unternehmens per Click auf die Karte aus.</p>
+
+              <div v-if="companyData != null" class="sizing">
+                <div class="mapWrapper">
+                  <MapPicker @pickCoordinates="pickCoordinates($event)" :data="companyData.coordinates" :isExtrasEditing="isExtrasEditing" :key="key" class="map" />
+                </div>
+              </div>
+    
+              <div
+                v-if="!isExtrasEditing"
+                class="py-2"
+                style="width: fit-content"
+              >
+                <button
+                  type="button"
+                  class="btn btn-primary px-2 mx-2"
+                  @click="editExtras()"
+                >
+                  Bearbeiten
+                </button>
+              </div>
+              <div v-else style="display: flex">
+                <div class="py-2 mx-0 edit-buttons">
+                  <button
+                    type="button"
+                    class="btn btn-primary px-2 mx-2"
+                    @click="validateExtrasChange(true)"
+                  >
+                    <div class="loading-button">Speichern</div>
+                    <div class="spinner">
+                      <span
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      <span class="sr-only">Loading...</span>
+                    </div>
+                  </button>
+                </div>
+                <div class="py-2 mx-0 edit-buttons">
+                  <button
+                    type="button"
+                    class="btn btn-warning px-2 mx-2"
+                    @click="cancelExtrasChange()"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -266,25 +345,30 @@ import { useStore, mapGetters } from 'vuex';
 import { computed } from 'vue';
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.js';
 import AlertPopup from '../components/AlertPopup.vue';
+import MapPicker from '@/components/MapPicker.vue';
 
 export default {
   name: 'SettingsView',
   components: {
     AlertPopup,
-  },
+    MapPicker
+},
   data() {
     return {
       isCompanyEditing: false,
       isEmployeesEditing: false,
+      isExtrasEditing: false,
       saveCompanyPressed: false,
       saveEmployeesPressed: false,
+      saveExtrasPressed: false,
       employees: [],
       alertTitle: '',
       alertInfo: '',
-      successAlertTitle: 'Erfolgreich',
-      successAlertInfo: 'Aktion wurde erfolgreich durchgeführt',
+      successAlertTitle: '',
+      successAlertInfo: '',
       failureAlertTitle: 'Fehler',
       failureAlertInfo: 'Es ist ein Fehler aufgetreten!',
+      key: 0
     };
   },
   computed: {
@@ -303,7 +387,8 @@ export default {
       info: '',
       employees: [''],
       image: null, 
-      unchangedImage: null
+      unchangedImage: null, 
+      coordinates: []
     });
 
     return {
@@ -387,6 +472,10 @@ export default {
     }
   },
   methods: {
+    pickCoordinates(coordinates) {
+      if(coordinates != null && coordinates.lat != null && coordinates.lng != null)
+      this.form.coordinates = [coordinates.lat, coordinates.lng]
+    },
     imageInput() {
       var input = document.getElementById('formFile');
 
@@ -427,6 +516,12 @@ export default {
       locationInput.disabled = false;
       categoryInput.disabled = false;
       descriptionInput.disabled = false;
+    },
+    editExtras() {
+      this.isExtrasEditing = true;
+
+      var instagramInput = document.getElementById('company-instagram');
+      instagramInput.disabled = false;
     },
     editEmployees() {
       this.isEmployeesEditing = true;
@@ -526,6 +621,83 @@ export default {
         this.form.category = categoryInput.value;
 
         this.saveCompany();
+      }
+    },
+    async validateExtrasChange(pressed) {
+      if (!pressed && !this.saveExtrasPressed) return;
+
+      var instagramInput = document.getElementById('company-instagram');
+
+      if (pressed) instagramInput.value = instagramInput.value.trim();
+      var valid = true;
+
+      if (instagramInput.value.trim().length < 3) {
+        instagramInput.classList.remove('is-valid');
+        instagramInput.classList.add('is-invalid');
+        valid = false;
+      } else {
+        instagramInput.classList.remove('is-invalid');
+        instagramInput.classList.add('is-valid');
+      }
+
+      this.saveExtrasPressed = true;
+
+      if (valid && pressed) {
+        this.store.commit('setState', 'loading');
+
+        if (
+          instagramInput.value.replace(/\s/g, '').toLowerCase() !=
+          this.companyData.socials['instagram']
+        ) {
+          try {
+            const { error } = await supabase
+            .from('companies')
+            .update({
+              socials: {'instagram': instagramInput.value.replace(/\s/g, '').toLowerCase() } 
+            })
+            .eq('id', this.companyData.id);
+
+            if (error) throw error;
+          } catch (e) {
+            console.log(e)
+            instagramInput.classList.remove('is-valid');
+            instagramInput.classList.add('is-invalid');
+
+            this.store.commit('setState', 'failure');
+          }
+          
+        }
+
+        if (
+          this.form.coordinates !=
+          this.companyData.coordinates && this.form.coordinates != []
+        ) {
+          try {
+            const { error } = await supabase
+            .from('companies')
+            .update({
+              coordinates: this.form.coordinates 
+            })
+            .eq('id', this.companyData.id);
+
+            if (error) throw error;
+
+            this.companyData.coordinates = this.form.coordinates
+          } catch (e) {
+            console.log(e)
+
+            this.store.commit('setState', 'failure');
+          }
+          
+        }
+
+        instagramInput.classList.remove('is-valid');
+        instagramInput.classList.remove('is-invalid');
+
+        this.store.commit('setState', 'success');
+        this.isExtrasEditing = false;
+
+        this.key++;
       }
     },
     validateEmployeesChange(pressed, index) {
@@ -711,6 +883,19 @@ export default {
       descriptionInput.classList.remove('is-valid');
       descriptionInput.classList.remove('is-invalid');
     },
+    cancelExtrasChange() {
+      this.isExtrasEditing = false;
+      this.saveExtrasPressed = false;
+
+      var instagramInput = document.getElementById('company-instagram');
+      instagramInput.value = this.companyData.socials['instagram'];
+
+      this.form.coordinates = []
+      this.key++;
+
+      instagramInput.classList.remove('is-valid');
+      instagramInput.classList.remove('is-invalid');
+    },
     cancelEmployeesChange() {
       this.isEmployeesEditing = false;
       this.saveEmployeesPressed = false;
@@ -884,5 +1069,32 @@ img {
   font-size: 6rem;
   top: 50%;
   left: calc(50% - 3rem);
+}
+
+h5 {
+  text-align: left;
+}
+
+.sizing {
+  max-width: 70vh;
+  margin-bottom: 30px;
+}
+
+.mapWrapper {
+  position: relative;
+  width: calc(100%);
+  padding-bottom: calc(100%);
+  margin: 0;
+}
+
+.map {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  left: 0;
+  border-style: groove;
+  border-color: #ebebeb;
+  border-width: 1px;
 }
 </style>
