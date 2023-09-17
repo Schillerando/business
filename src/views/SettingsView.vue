@@ -631,15 +631,6 @@ export default {
       if (pressed) instagramInput.value = instagramInput.value.trim();
       var valid = true;
 
-      if (instagramInput.value.trim().length < 3) {
-        instagramInput.classList.remove('is-valid');
-        instagramInput.classList.add('is-invalid');
-        valid = false;
-      } else {
-        instagramInput.classList.remove('is-invalid');
-        instagramInput.classList.add('is-valid');
-      }
-
       this.saveExtrasPressed = true;
 
       if (valid && pressed) {
