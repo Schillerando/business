@@ -20,7 +20,7 @@
     </div>
 
     <div class="button">
-      <button class="btn btn-primary">
+      <button :disabled="disabled" @click="bookService()" class="btn btn-primary">
         Buchen
       </button>
     </div>
@@ -32,7 +32,7 @@ import { useStore } from 'vuex';
 
 export default {
   name: 'ProductTile',
-  props: ['title', 'description', 'icon', 'price'],
+  props: ['title', 'description', 'icon', 'price', 'disabled'],
   setup() {
     const store = useStore()
 
@@ -41,6 +41,18 @@ export default {
     return {
       store,
       isBusiness
+    }
+  },
+  methods: {
+    bookService() {
+      const data = {
+        title: this.title,
+        description: this.description,
+        icon: this.icon,
+        price: this.price
+      }
+
+      this.$router.push({ name: 'BookServiceView', state: { data }})
     }
   }
 };
@@ -80,8 +92,10 @@ p {
 }
 
 .isBusiness {
-  text-decoration: line-through 2px #f6b600;
-  -webkit-text-decoration: line-through 2px #f6b600;
+  text-decoration-line: line-through;
+  text-decoration-style: solid;
+  text-decoration-color: #f6b600;
+  text-decoration-thickness: 2px;
 }
 
 .free {

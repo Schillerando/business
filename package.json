@@ -24,6 +24,7 @@
     "uuid": "^9.0.0",
     "vue": "^3.2.47",
     "vue-chartjs": "^5.2.0",
+    "vue-qrcode": "^2.2.0",
     "vue-router": "^4.1.6",
     "vuex-persistedstate": "^4.1.0"
   },
