@@ -333,6 +333,17 @@
           </div>
         </div>
 
+        <div class="col-lg-4">
+          <div class="card m-1">
+            <div class="card-header">QR-Code</div>
+            <div class="card-body">
+              <p>QR-Code zur Unternehmensseite</p>
+
+              <QRCode :link="link" :scale="7" />
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -346,12 +357,14 @@ import { computed } from 'vue';
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.js';
 import AlertPopup from '../components/AlertPopup.vue';
 import MapPicker from '@/components/MapPicker.vue';
+import QRCode from '@/components/QRCode.vue';
 
 export default {
   name: 'SettingsView',
   components: {
     AlertPopup,
-    MapPicker
+    MapPicker,
+    QRCode
 },
   data() {
     return {
@@ -373,6 +386,10 @@ export default {
   },
   computed: {
     ...mapGetters(['getState']),
+    link() {
+      if(this.companyData == null) return ''
+      return process.env.VUE_APP_MAIN_URL + '/' + this.companyData.alias
+    }
   },
   setup() {
     const store = useStore();
