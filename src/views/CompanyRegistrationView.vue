@@ -148,7 +148,7 @@
 
                 <button
                   type="button"
-                  v-if="this.form.employees.length < 6"
+                  v-if="this.form.employees.length < 9"
                   @click="addEmployee()"
                   class="btn btn-primary col-md-9 mb-5"
                   style="width: max-content"
