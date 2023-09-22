@@ -213,7 +213,7 @@
                 <div v-else>
                   <button
                     type="button"
-                    v-if="this.employees.length < 6"
+                    v-if="this.employees.length < 26"
                     @click="addEmployee()"
                     class="btn btn-primary my-4"
                     style="width: max-content; display: block"
