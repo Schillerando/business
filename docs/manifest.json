@@ -7,11 +7,10 @@
     "description": "Verwalte dein Unternehmen auf Schillerando Business.",
     "icons": [
       {
-        "src": "./img/logo_reversed_background.ed99d671.png",
+        "src": "./img/logo_background.5bcc5228.png",
         "sizes": "any",
         "purpose": "maskable any",
         "type": "image/png"
       }
     ]
   }
-  
