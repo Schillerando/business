@@ -1,0 +1,17 @@
+{
+    "name": "Schillerando Business",
+    "short_name": "Business",
+    "start_url": "./buchhaltung",
+    "display": "standalone",
+    "background_color": "#fff",
+    "description": "Verwalte dein Unternehmen auf Schillerando Business.",
+    "icons": [
+      {
+        "src": "./img/logo_reversed_background.ed99d671.png",
+        "sizes": "any",
+        "purpose": "maskable any",
+        "type": "image/png"
+      }
+    ]
+  }
+  
