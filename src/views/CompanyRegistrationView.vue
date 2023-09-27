@@ -327,7 +327,7 @@ import { reactive } from 'vue';
 import { useStore, mapGetters } from 'vuex';
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.js';
 import AboOptions from '../components/AboOptions'
-import AlertPopup from '../components/AlertPopup.vue';
+import AlertPopup from '@/shared/components/AlertPopup.vue';
 import AGB from '../components/AGB.vue';
 import { supabase } from '@/supabase';
 import EditProductOverlay from "../components/EditProductOverlay.vue"

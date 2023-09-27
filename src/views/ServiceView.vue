@@ -8,7 +8,7 @@
 <script>
 import TitleDiv from '../components/TitleDiv';
 import InfoDiv from '../components/InfoDiv';
-import AlertBanner from '../components/AlertBanner';
+import AlertBanner from '@/shared/components/AlertBanner';
 
 export default {
   name: 'ServiceView',

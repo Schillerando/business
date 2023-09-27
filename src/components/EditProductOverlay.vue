@@ -148,7 +148,7 @@
 <script>
 import { reactive } from 'vue';
 import { useStore, mapGetters } from 'vuex';
-import AlertPopup from '../components/AlertPopup.vue';
+import AlertPopup from '@/shared/components/AlertPopup.vue';
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.js';
 import { supabase } from '../supabase';
 import {v4 as uuidv4} from 'uuid';

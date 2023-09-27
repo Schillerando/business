@@ -112,7 +112,7 @@
 import { reactive } from 'vue';
 import { useStore, mapGetters } from 'vuex';
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.js';
-import AlertPopup from '../components/AlertPopup.vue';
+import AlertPopup from '@/shared/components/AlertPopup.vue';
 import AboOptions from '../components/AboOptions'
 import AGB from '../components/AGB.vue';
 
