@@ -355,7 +355,7 @@ import { reactive } from 'vue';
 import { useStore, mapGetters } from 'vuex';
 import { computed } from 'vue';
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.js';
-import AlertPopup from '../components/AlertPopup.vue';
+import AlertPopup from '@/shared/components/AlertPopup.vue';
 import MapPicker from '@/components/MapPicker.vue';
 import QRCode from '@/components/QRCode.vue';
 
