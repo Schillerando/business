@@ -26,7 +26,7 @@
 
 <script>
 import { supabase } from '@/supabase';
-import TitleDiv from '../components/TitleDiv';
+import TitleDiv from '@/shared//components/TitleDiv';
 //import ProductTile from '../components/ProductTile';
 import EditProductOverlay from '../components/EditProductOverlay';
 import SortableList from '@/components/SortableList.vue';

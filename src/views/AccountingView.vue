@@ -118,7 +118,7 @@
 </template>
 
 <script>
-import TitleDiv from '../components/TitleDiv';
+import TitleDiv from '@/shared/components/TitleDiv';
 import EditAccountingEntryOverlay from '../components/EditAccountingEntryOverlay';
 import SortableList from '@/components/SortableList.vue';
 import { supabase } from '@/supabase';

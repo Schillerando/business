@@ -10,7 +10,7 @@
 
 <script>
 import NavBar from './components/NavBar';
-import SocialsFooter from './components/SocialsFooter';
+import SocialsFooter from '@/shared/components/SocialsFooter';
 import LockedOverlay from './components/LockedOverlay';
 import NoAccessOverlay from './components/NoAccessOverlay';
 import { useStore } from 'vuex';
