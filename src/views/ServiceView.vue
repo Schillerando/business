@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import TitleDiv from '../components/TitleDiv';
+import TitleDiv from '@/shared//components/TitleDiv';
 import InfoDiv from '../components/InfoDiv';
 import AlertBanner from '@/shared/components/AlertBanner';
 
