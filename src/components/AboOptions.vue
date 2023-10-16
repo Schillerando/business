@@ -17,7 +17,7 @@
             <li class="info-text advantage">Kostenlose Buchhaltung</li>
 
             <li class="info-text">Gebührenpflichtige Lieferungen<sup>1</sup></li>
-            <li class="info-text">Gebührenpflichtige Services</li>
+            <li class="info-text">Gebührenpflichtige Services<sup>3</sup></li>
             <li class="info-text">-</li>
           </ul>
         </div>
@@ -42,7 +42,7 @@
             </li>
             <li class="info-text">Kostenlose Buchhaltung</li>
             <li class="info-text advantage">Kostenlose Lieferungen</li>
-            <li class="info-text">Gebührenpflichtige Services</li>
+            <li class="info-text">Gebührenpflichtige Services<sup>3</sup></li>
             <li class="info-text">-</li>
           </ul>
         </div>
@@ -69,7 +69,7 @@
 
             <li class="info-text">Kostenlose Lieferungen</li>
             <li class="info-text advantage">
-              Kostenlose Services
+              Kostenlose Services<sup>3</sup>
             </li>
             <li class="info-text advantage">Bevorzugung</li>
           </ul>
@@ -95,6 +95,7 @@
 
     <p class="note"><sup>1</sup> 10% Lieferkosten pro Bestellung für Unternehmen. Beispiel: Kunde bestellt Cola für 20$ (2€). Schillerando Mitarbeiter geht zu Unternehmen und kauft Cola für 18$ (1.8€). Schillerando Mitarbeiter liefert Cola zum Kunden und bekommt 20$ (2€). Schillerando erhält 2$ (0.20€) Lieferkosten.</p>
     <p class="note"><sup>2</sup> $ entspricht der Staatswährung (1$ = 0.1€). Das Geld muss am ersten Tag von SAS bei Schillerando abgegeben werden bzw. wird von einem Schillerando Mitarbeiter eingesammelt.</p>
+    <p class="note"><sup>3</sup> Hierbei handelt es sich um zusätzliche Services, wie Müllentsorgung oder Wareneinkauf, die man während Schule Als Staat buchen kann. Bucht man diese nicht aktiv fallen keine weiteren Kosten an.</p>
 
     <div
       class="alert alert-danger"
