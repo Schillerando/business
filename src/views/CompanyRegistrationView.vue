@@ -344,7 +344,7 @@ export default {
   },
   data() {
     return {
-      page: 0,
+      page: 3,
       continuePressed: false,
       action: '',
       alertTitle: '',
