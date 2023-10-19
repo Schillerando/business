@@ -7,7 +7,7 @@
   </button>
 
   <SortableList
-      v-if="products.length > 0"
+      v-if="!loading && products.length > 0"
       :items="products"
       :key="key"
       sort-by-categories="true"
@@ -55,18 +55,59 @@ export default {
     return {
       products: [],
       newProduct: false, 
-      key: 0
+      key: 0,
+      loading: true
     };
 
   },
   async created() {
-    const { data, error } = await supabase
-      .from('products')
-      .select()
-      .eq('company_id', this.companyData.id);
+    try {
 
-    if (error) throw error;
-    this.products = data.sort((a, b) => a.name.localeCompare(b.name));
+      const { data, error } = await supabase
+        .from('products')
+        .select()
+        .eq('company_id', this.companyData.id);
+
+      if (error) throw error;
+      this.products = data.sort((a, b) => a.name.localeCompare(b.name));
+
+      for(var i=0; i<this.products.length; i++) {
+
+        if(this.products[i].has_variations) {
+
+          const { data, error } = await supabase
+            .from('product_variations')
+            .select()
+            .eq('product', this.products[i].id)
+
+          if(error) throw error
+
+          if(data.length > 0) this.products[i].variations = data
+
+        }
+
+        if(this.products[i].has_extras) {
+
+          const { data, error } = await supabase
+            .from('product_extras')
+            .select()
+            .eq('product', this.products[i].id)
+
+          if(error) throw error
+
+          if(data.length > 0) this.products[i].extras = data
+
+        }
+
+      }
+
+      this.loading = false
+
+      console.log(this.products)
+    } catch(e) {
+      console.log(e)
+    }
+    
   },
   methods: {
     deleteProduct(productData) {

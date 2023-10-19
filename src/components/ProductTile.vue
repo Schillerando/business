@@ -64,7 +64,11 @@ export default {
       image: null, 
       delivery: true,
       public: true,
-      product_picture: ''
+      product_picture: '',
+      variations: [],
+      extras: [],
+      has_variations: false,
+      has_extras: false
     });
 
     return {
@@ -81,6 +85,21 @@ export default {
       this.product.delivery = this.data.delivery;
       this.product.public = this.data.public;
       this.product.product_picture = this.data.product_picture;
+      this.product.has_variations = this.data.has_variations;
+      this.product.has_extras = this.data.has_extras;
+
+      if(this.data.variations != undefined) {
+        this.data.variations.forEach(variation => {
+          this.product.variations.push(variation)
+        })   
+      }
+      
+      if(this.data.variations != undefined) {
+        this.data.extras.forEach(extra => {
+          this.product.extras.push(extra)
+        }) 
+      }
+      
 
       if(this.registration) {
         this.product.image = this.data.image

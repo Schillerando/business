@@ -252,7 +252,9 @@ const store = createStore({
               company_id: this.getters.getUserCompany.id,
               auth_uid: this.getters.getUser.id,
               delivery: product.delivery,
-              public: product.public
+              public: product.public,
+              has_variations: product.has_variations,
+              has_extras: product.has_extras,
             })
             .select();
 
@@ -284,6 +286,42 @@ const store = createStore({
   
                 if (error) throw error;
             }
+          }
+
+          if(product.has_variations) {
+
+            for(i = 0; i < product.variations.length; i++) {
+
+              const { error } = await supabase  
+                .from('product_variations')
+                .insert({
+                  name: product.variations[i].length,
+                  price: product.variations[i].price,
+                  product: data[0].id
+                }) 
+
+              if(error) throw error
+
+            }
+
+          }
+
+          if(product.has_extras) {
+            
+            for(i = 0; i < product.extras.length; i++) {
+
+              const { error } = await supabase  
+                .from('product_extras')
+                .insert({
+                  name: product.extras[i].length,
+                  extra_price: product.extras[i].extra_price,
+                  product: data[0].id
+                }) 
+
+              if(error) throw error
+
+            }
+
           }
 
         }
@@ -336,7 +374,9 @@ const store = createStore({
           delivery: product.delivery,
           public: product.public, 
           auth_uid: this.getters.getUser.id,
-          company_id: this.getters.getUserCompany.id
+          company_id: this.getters.getUserCompany.id,
+          has_variations: product.has_variations,
+          has_extras: product.has_extras,
         })
         .select()
 
@@ -376,6 +416,42 @@ const store = createStore({
           }
         }
 
+        if(product.has_variations) {
+
+          for(var i = 0; i < product.variations.length; i++) {
+
+            const { error } = await supabase  
+              .from('product_variations')
+              .insert({
+                name: product.variations[i].name,
+                price: product.variations[i].price,
+                product: data[0].id
+              }) 
+
+            if(error) throw error
+
+          }
+
+        }
+
+        if(product.has_extras) {
+          
+          for(i = 0; i < product.extras.length; i++) {
+
+            const { error } = await supabase  
+              .from('product_extras')
+              .insert({
+                name: product.extras[i].name,
+                extra_price: product.extras[i].extra_price,
+                product: data[0].id
+              }) 
+
+            if(error) throw error
+
+          }
+
+        }
+
         commit('setState', 'success');
       } catch (error) {
         commit('setCurrentProduct', null)
@@ -393,7 +469,9 @@ const store = createStore({
           categories: product.categories,
           price: product.price,
           delivery: product.delivery,
-          public: product.public
+          public: product.public,
+          has_variations: product.has_variations,
+          has_extras: product.has_extras
         })
         .eq('id', product.id)
         .select()
@@ -440,6 +518,62 @@ const store = createStore({
               if (error) throw error;
 
               commit('setCurrentProduct', data[0])
+          }
+        }
+
+        console.log(product.variations)
+        console.log(product.has_variations)
+
+        if(product.has_variations) {
+          for (var i = 0; i < product.variations.length; i++) {
+            if (product.variations[i].new) {
+
+              const { error } = await supabase  
+                .from('product_variations')
+                .insert({
+                  name: product.variations[i].name,
+                  price: product.variations[i].price,
+                  product: data[0].id
+                }) 
+
+              if(error) throw error
+            } else {
+              const { error } = await supabase  
+                .from('product_variations')
+                .update({
+                  name: product.variations[i].name,
+                  price: product.variations[i].price,
+                }) 
+                .eq('id', product.variations[i].id)
+
+              if(error) throw error
+            }
+          }
+        }
+
+        if(product.has_extras) {
+          for (i = 0; i < product.extras.length; i++) {
+            if (product.extras[i].new) {
+              const { error } = await supabase  
+                .from('product_extras')
+                .insert({
+                  name: product.extras[i].name,
+                  extra_price: product.extras[i].extra_price,
+                  product: data[0].id
+                }) 
+
+              if(error) throw error
+            } else {
+              const { error } = await supabase  
+                .from('product_extras')
+                .update({
+                  name: product.extras[i].name,
+                  extra_price: product.extras[i].extra_price,
+                }) 
+                .eq('id', product.variations[i].id)
+
+              if(error) throw error
+            }
           }
         }
 
