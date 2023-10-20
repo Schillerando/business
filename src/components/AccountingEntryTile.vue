@@ -62,7 +62,9 @@ export default {
       imageBefore: null, 
       image: null, 
       bill_picture: '',
-      currencyIsEuro: false
+      currencyIsEuro: false,
+      extras: [],
+      variation: ''
     });
 
     const store = useStore();
@@ -84,6 +86,9 @@ export default {
       this.entry.amount = this.data.amount;
       this.entry.bill_picture = this.data.bill_picture;
       this.entry.currencyIsEuro = this.data.currencyIsEuro;
+      this.entry.variation = this.data.variation;
+      this.entry.extras = this.data.extras;
+      this.entry.product = this.data.product;
 
       if(this.data.users != undefined) {
         this.entry.userName = this.data.users.name
