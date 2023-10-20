@@ -61,8 +61,35 @@
               @change="validateEntry(false, true)"
             >
               <option value="" selected>Angebot</option>
-              <option v-for="product in this.products" :key="product.id" :value="product.id">{{ product.name }} | {{ product.price }} $</option>
+              <option v-for="product in this.products" :key="product.id" :value="product.id">{{ product.name }} | <span v-if="product.has_variations">ab</span> {{ product.price }} $</option>
             </select>
+          </div>
+
+          <div v-if="entry.type == 'Verkauf+' && entry.product != null && entry.product.has_variations" class="input-group mb-3">
+            <span class="input-group-text"
+              ><i class="fa-solid fa-bars"></i></span>
+            <select
+              class="form-select"
+              id="entry-product-variation"
+              aria-label="Default select example"
+              :value="entry.variation"
+              @change="validateEntry(false, false, true)"
+            >
+              <option value="" selected>Variation</option>
+              <option v-for="variation in this.entry.product.variations" :key="variation.id" :value="variation.id">{{ variation.name }} | {{ variation.price }} $</option>
+            </select>
+          </div>
+
+          <div v-if="entry.type == 'Verkauf+' && entry.product != null && entry.product.has_extras" class="extras">
+            <p class="extras-header">Extras</p>
+            <div class="check" v-for="extra in entry.product.extras" :key="extra.id">
+              <div class="form-check">
+                <input :checked="entry.extras.includes(extra.id)" @input="switchExtra(extra.id)" class="form-check-input" type="checkbox" :value="entry.extras.includes(extra.id)" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault">
+                  {{ extra.name }} | +{{ extra.extra_price }} $
+                </label>
+              </div>
+            </div>
           </div>
 
           <div class="input-group mb-3">
@@ -208,7 +235,9 @@ export default {
       imageBefore: null, 
       image: null, 
       bill_picture: '',
-      currencyIsEuro: false
+      currencyIsEuro: false,
+      variation: '',
+      extras: []
     });
 
     var initialEntry = reactive({
@@ -222,7 +251,9 @@ export default {
       imageBefore: null, 
       image: null, 
       bill_picture: '',
-      currencyIsEuro: false
+      currencyIsEuro: false,
+      variation: '',
+      extras: []
     });
 
     var product = reactive({
@@ -233,7 +264,11 @@ export default {
       price: '',
       delivery: true,
       public: true,
-      product_picture: ''
+      product_picture: '',
+      has_variations: false,
+      has_extras: false,
+      variations: [],
+      extras: []
     });
 
     const store = useStore();
@@ -253,14 +288,16 @@ export default {
       this.entry.info = this.data.info;
       this.entry.amount = this.data.amount;
       this.entry.currencyIsEuro = this.data.currencyIsEuro;
+      this.entry.variation = this.data.variation;
+      this.entry.extras = this.data.extras;
+
+      console.log(this.data.extras)
 
       this.day = reformatDate(this.data.created_at.split('T')[0]);
       this.time = cutSecondsFromTime(this.data.created_at.split('T')[1]);
 
-      this.userName = this.data.userName
-
-      var findProduct = this.products.find(product => product.id == this.data.product);
-      if(findProduct != null) this.entry.product = findProduct;
+      var index = this.products.findIndex(product => product.id == this.data.product);
+      if(index != -1) this.entry.product = this.products[index];
       else this.entry.product = this.product;
       
       this.entry.imageBefore = this.data.image;
@@ -273,8 +310,10 @@ export default {
       this.initialEntry.info = this.data.info;
       this.initialEntry.amount = this.data.amount;
       this.initialEntry.currencyIsEuro = this.data.currencyIsEuro;
+      this.initialEntry.variation = this.data.variation;
+      this.initialEntry.extras = this.data.extras;
 
-      if(findProduct != null) this.initialEntry.product = findProduct;
+      if(index != -1) this.initialEntry.product = this.products[index];
       else this.initialEntry.product = this.product;
 
       this.initialEntry.imageBefore = this.data.image;
@@ -288,6 +327,7 @@ export default {
       this.initialEntry.product = this.product;
     }
 
+    console.log(this.entry)
   },
   computed: {
     ...mapGetters(['getState']),
@@ -402,11 +442,24 @@ export default {
 
       this.entry.amount = 0
     },
-    async validateEntry(pressed, productChanged) {
+    switchExtra(extraId) {
+      var index = this.entry.product.extras.findIndex(extra => extra.id == extraId);
+
+      if(this.entry.extras.includes(extraId)) {
+        this.entry.extras = this.entry.extras.filter(extra => extra != extraId)
+        this.entry.amount -= this.entry.product.extras[index].extra_price
+      } else {
+        this.entry.extras.push(extraId)
+        this.entry.amount += this.entry.product.extras[index].extra_price
+      }
+
+    },
+    async validateEntry(pressed, productChanged, variationChanged) {
       var nameInput = document.getElementById('entry-name');
       var typeInput = document.getElementById('entry-type');
       var amountInput = document.getElementById('entry-amount');
       var infoInput = document.getElementById('entry-info');
+      var variationInput = document.getElementById('entry-product-variation');
 
       if(this.entry.type == 'Verkauf+') {
         var productInput = document.getElementById('entry-product');
@@ -415,13 +468,33 @@ export default {
         if(findProduct != null) this.entry.product = findProduct;
         else this.entry.product = this.product;
 
-
         if(productChanged && this.entry.product.id != null && productInput.value != '' && productInput.value != null) {
           this.entry.name = this.entry.product.name;
           this.entry.amount = this.entry.product.price;
+
+          this.entry.variation = ''
+          this.entry.extras = []
         } else {
           this.entry.name = nameInput.value;
           this.entry.amount = amountInput.value;
+        }
+
+        if(variationChanged) {
+          this.entry.variation = variationInput.value
+
+          if(variationInput.value != '') {
+            var findVariation = this.entry.product.variations.find(variation => variation.id == variationInput.value);
+
+            this.entry.name = this.entry.product.name + " " + findVariation.name
+
+            this.entry.amount = findVariation.price
+
+            this.entry.extras.forEach((extraId) => {
+              var index = this.entry.product.extras.findIndex(extra => extra.id == extraId)
+
+              this.entry.amount += this.entry.product.extras[index].extra_price
+            })
+          }
         }
       } else {
         this.entry.name = nameInput.value;
@@ -475,6 +548,18 @@ export default {
       } else {
         typeInput.classList.remove('is-invalid');
         typeInput.classList.add('is-valid');
+      }
+
+      if (this.entry.type == 'Verkauf+' && this.entry.product != null && this.entry.product.has_variations) {
+        
+        if(this.entry.variation == '') {
+          variationInput.classList.remove('is-valid');
+          variationInput.classList.add('is-invalid');
+          valid = false;
+        } else {
+          variationInput.classList.remove('is-invalid');
+          variationInput.classList.add('is-valid');
+        }
       }
 
       this.continuePressed = true
@@ -655,6 +740,28 @@ img {
 
 .time {
   padding: 0 10px;
+}
+
+.fa-bars {
+  margin-left: 3px;
+}
+
+.extras {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.check {
+  margin-bottom: 5px;
+}
+
+.extras-header {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.form-check {
+  margin-bottom: 2px;
 }
 
 </style>

@@ -710,7 +710,9 @@ const store = createStore({
           product: entry.product.id,
           user_id: this.getters.getUser.id,
           company_id: this.getters.getUserCompany.id,
-          currencyIsEuro: entry.currencyIsEuro
+          currencyIsEuro: entry.currencyIsEuro,
+          variation: entry.variation != '' ? entry.variation : null,
+          extras: entry.extras.length > 0 ? entry.extras : null
         })
         .select()
 
@@ -775,7 +777,9 @@ const store = createStore({
           type: entry.type,
           amount: entry.type.includes('-') ? -Math.abs(entry.amount) : Math.abs(entry.amount),
           product: entry.product.id,
-          currencyIsEuro: entry.currencyIsEuro
+          currencyIsEuro: entry.currencyIsEuro,
+          variation: entry.variation != '' ? entry.variation : null,
+          extras: entry.extras.length > 0 ? entry.extras : null
         })
         .eq('id', entry.id)
         .select()

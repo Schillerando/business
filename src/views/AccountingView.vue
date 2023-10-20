@@ -97,7 +97,7 @@
       </div>
 
       <div class="col-lg-6">
-        <div class="entries">
+        <div v-if="!loading" class="entries">
           <SortableList :items="entries" :products="products" :key="key" element="AccountingEntryTile"
             @deleteEntry="deleteEntry($event)" @stopEditingEntry="stopEditingEntry($event)" />
 
@@ -175,7 +175,8 @@ export default {
       listKey: 0,
       key: 0,
       totalChart: null,
-      typeChart: null
+      typeChart: null,
+      loading: true
     };
   },
   async created() {
@@ -187,6 +188,32 @@ export default {
 
       if (error) throw error;
       this.products = data.sort((a, b) => a.name.localeCompare(b.name));
+
+      for(var i = 0; i < this.products.length; i++) {
+        if(this.products[i].has_variations) {
+          const { data, error } = await supabase
+            .from('product_variations')
+            .select()
+            .eq('product', this.products[i].id)
+            .order('price')
+
+          if (error) throw error;
+
+          this.products[i].variations = data
+        }
+
+        if(this.products[i].has_extras) {
+          const { data, error } = await supabase
+            .from('product_extras')
+            .select()
+            .eq('product', this.products[i].id)
+            .order('extra_price')
+
+          if (error) throw error;
+
+          this.products[i].extras = data
+        }
+      }
     }
 
     const { data, error } = await supabase
@@ -197,6 +224,8 @@ export default {
     if (error) throw error;
 
     this.entries = data
+
+    this.loading = false
 
     this.calculateProfit()
     this.updateGraphs()
