@@ -430,14 +430,12 @@ const store = createStore({
 
             if(error) throw error
 
+            product.variations[i].new = false
           }
-
         }
 
         if(product.has_extras) {
-          
           for(i = 0; i < product.extras.length; i++) {
-
             const { error } = await supabase  
               .from('product_extras')
               .insert({
@@ -448,9 +446,14 @@ const store = createStore({
 
             if(error) throw error
 
+            product.extras[i].new = false
           }
-
         }
+
+        var newProduct = data[0]
+        newProduct.variations = product.variations
+        newProduct.extras = product.extras
+        commit('setCurrentProduct', newProduct)
 
         commit('setState', 'success');
       } catch (error) {
@@ -521,11 +524,22 @@ const store = createStore({
           }
         }
 
-        console.log(product.variations)
-        console.log(product.has_variations)
+        {
+          const { data, error } = await supabase
+            .from('product_variations')
+            .select()
+            .eq('product', product.id)
+            
+          if(error) throw error;
 
+          var oldVariations = data
+        }
+
+        var variationIDs = []
         if(product.has_variations) {
           for (var i = 0; i < product.variations.length; i++) {
+            variationIDs.push(product.variations[i].id)
+
             if (product.variations[i].new) {
 
               const { error } = await supabase  
@@ -533,49 +547,110 @@ const store = createStore({
                 .insert({
                   name: product.variations[i].name,
                   price: product.variations[i].price,
-                  product: data[0].id
+                  product: this.state.currentProduct.id
                 }) 
 
               if(error) throw error
+
+              product.variations[i].new = false
             } else {
-              const { error } = await supabase  
-                .from('product_variations')
-                .update({
-                  name: product.variations[i].name,
-                  price: product.variations[i].price,
-                }) 
-                .eq('id', product.variations[i].id)
+              var index = oldVariations.findIndex(variation => variation.id === product.variations[i].id)
 
-              if(error) throw error
+              if(index != -1 && (oldVariations[index].name != product.variations[i].name || oldVariations[index].price != product.variations[i].price)) {
+                const { error } = await supabase  
+                  .from('product_variations')
+                  .update({
+                    name: product.variations[i].name,
+                    price: product.variations[i].price,
+                  }) 
+                  .eq('id', product.variations[i].id)
+
+                if(error) throw error
+              }
+
             }
           }
         }
 
+        console.log(1)
+
+        for(i = 0; i < oldVariations.length; i++) {
+          if(!variationIDs.includes(oldVariations[i].id)) {
+            const { error } = await supabase  
+              .from('product_variations')
+              .delete()
+              .eq('id', oldVariations[i].id)
+
+            if(error) throw error
+          }
+        }
+
+        console.log(2)
+        
+
+        {
+          const { data, error } = await supabase
+            .from('product_extras')
+            .select()
+            .eq('product', product.id)
+            
+          if(error) throw error;
+
+          var oldExtras = data
+        }
+
+        var extraIDs = []
         if(product.has_extras) {
           for (i = 0; i < product.extras.length; i++) {
+            extraIDs.push(product.extras[i].id)
+
             if (product.extras[i].new) {
               const { error } = await supabase  
                 .from('product_extras')
                 .insert({
                   name: product.extras[i].name,
                   extra_price: product.extras[i].extra_price,
-                  product: data[0].id
+                  product: this.state.currentProduct.id
                 }) 
 
               if(error) throw error
+
+              product.extras[i].new = false
             } else {
-              const { error } = await supabase  
-                .from('product_extras')
-                .update({
-                  name: product.extras[i].name,
-                  extra_price: product.extras[i].extra_price,
-                }) 
-                .eq('id', product.variations[i].id)
+              index = oldExtras.findIndex(extra => extra.id === product.extras[i].id)
 
-              if(error) throw error
+              if(index != -1 && (oldExtras[index].name != product.extras[i].name || oldExtras[index].extra_price != product.extras[i].extra_price)) {
+                const { error } = await supabase  
+                  .from('product_extras')
+                  .update({
+                    name: product.extras[i].name,
+                    extra_price: product.extras[i].extra_price,
+                  }) 
+                  .eq('id', product.variations[i].id)         
+                  
+                  if(error) throw error
+
+              }
+              
             }
           }
         }
+
+        for(i = 0; i < oldExtras.length; i++) {
+          if(!extraIDs.includes(oldExtras[i].id)) {
+            const { error } = await supabase  
+              .from('product_extras')
+              .delete()
+              .eq('id', oldExtras[i].id)
+
+            if(error) throw error
+          }
+        }
+
+        var newProduct = this.state.currentProduct
+        newProduct.variations = product.variations
+        newProduct.extras = product.extras
+        commit('setCurrentProduct', newProduct)
 
         commit('setState', 'success');
       } catch (error) {

@@ -371,6 +371,8 @@ export default {
   },
   methods: {
     async stopEditingProduct() {
+      console.log("test")
+
       if(!this.registration) {
         const newProduct = this.store.getters.getCurrentProduct 
         this.store.commit('setCurrentProduct', null)
@@ -387,8 +389,6 @@ export default {
           this.product.extras = newProduct.extras;
           this.product.has_variations = newProduct.has_variations;
           this.product.has_extras = newProduct.has_extras;
-
-          Hier weiter Varations übertragen
 
           if (newProduct.product_picture != null) {
             const response = await supabase.storage

@@ -94,7 +94,7 @@ export default {
         })   
       }
       
-      if(this.data.variations != undefined) {
+      if(this.data.extras != undefined) {
         this.data.extras.forEach(extra => {
           this.product.extras.push(extra)
         }) 

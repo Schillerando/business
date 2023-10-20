@@ -79,6 +79,7 @@ export default {
             .from('product_variations')
             .select()
             .eq('product', this.products[i].id)
+            .order('price')
 
           if(error) throw error
 
@@ -92,6 +93,7 @@ export default {
             .from('product_extras')
             .select()
             .eq('product', this.products[i].id)
+            .order('extra_price')
 
           if(error) throw error
 
