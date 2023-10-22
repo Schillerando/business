@@ -238,7 +238,7 @@ export default {
       for (let i = 0; i < pageCount; i++) {
         let entriesOnPage = 0;
         (i === pageCount - 1) ? entriesOnPage = (entries.length - ((pageCount - 1) * 16)) : entriesOnPage = 16;
-        pages[i].drawText(`${revenueSchilli}$, sowie ${revenueEuro}€`, {
+        pages[i].drawText(`${revenueSchilli}$, sowie ${Math.round(revenueEuro*100)/100}€`, {
           x: 352.5,
           y: height - 173,
           size: 12.5,
@@ -268,7 +268,7 @@ export default {
           if (currentEntry.currencyIsEuro) revenueEuro += parseFloat(currentEntry.amount);
           else revenueSchilli += parseInt(currentEntry.amount);
         }
-        pages[i].drawText(`${revenueSchilli}$, sowie ${revenueEuro}€`, {
+        pages[i].drawText(`${revenueSchilli}$, sowie ${Math.round(revenueEuro*100)/100}€`, {
           x: 352.5,
           y: height - (200 + 27 * 16),
           size: 12.5,
@@ -278,6 +278,11 @@ export default {
 
       const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
       window.location = pdfDataUri;
+
+      const link = document.createElement("a");
+      link.href = pdfDataUri;
+      link.download = 'buchhaltung.pdf';
+      link.click();
     },
     deleteEntry(entryData) {
       this.newEntry = false;
