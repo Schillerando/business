@@ -10,7 +10,8 @@ const store = createStore({
     userCompany: null,
     state: undefined,
     currentProduct: null,
-    currentEntry: null
+    currentEntry: null,
+    activeService: null
   },
   mutations: {
     setUser(state, payload) {
@@ -28,6 +29,9 @@ const store = createStore({
     setCurrentEntry(state, payload) {
       state.currentEntry = payload;
     },
+    setActiveService(state, payload) {
+      state.activeService = payload;
+    }
   },
   getters: {
     getUser(state) {
@@ -45,6 +49,9 @@ const store = createStore({
     getCurrentEntry(state) {
       return state.currentEntry;
     },
+    getActiveService(state) {
+      return state.activeService;
+    }
   },
   actions: {
     async reload({ commit }) {
@@ -64,6 +71,7 @@ const store = createStore({
         } else {
           commit('setUser', data.user);
           this.dispatch('startUserCompanySubscription');
+          this.dispatch('startServiceSubscription');
         }
       } catch(e) {
         commit('setUser', null);
@@ -857,7 +865,81 @@ const store = createStore({
         commit('setState', 'failure');
         console.log(error.error_description || error.message);
       }
-    }
+    },
+    async bookService({ commit }, service) {
+      try {
+        commit('setState', 'loading');
+
+        const { error } = await supabase.from('booked_services').insert({
+          buyer: service.buyer,
+          buyer_name: this.state.user.user_metadata.name,
+          company: service.company,
+          note: service.note,
+          type: service.type,
+          price: service.price,
+        });
+
+        if (error) throw error;
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        commit('setState', 'success');
+
+        router.replace('services');
+      } catch (error) {
+        commit('setState', 'failure');
+        console.log(error.error_description || error.message);
+      }
+    },
+    async startServiceSubscription({ commit }) {
+      try {
+
+        const { data, error } = await supabase
+          .from('booked_services')
+          .select('*')
+          .eq('company', this.getters.getUserCompany.id)
+          .eq('finished', false)
+          
+        if(error) throw error
+
+        if(data.length == 0) {
+          commit('setActiveService', null);
+        } else {
+          commit('setActiveService', data[0]);
+        }
+
+        const serviceSubscription = supabase.channel('any').on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'booked_services',
+            filter: 'company=eq.' + this.state.userCompany.id,
+          },
+          async (payload) => {
+            const newService = payload.new
+            if(newService.finished) {
+              commit('setActiveService', null);
+            } else {
+              commit('setActiveService', payload.new);
+            }
+          }
+        );
+
+        serviceSubscription.subscribe();
+      } catch (error) {
+        commit('setActiveService', null);
+        console.log(error.error_description || error.message);
+      }
+    },
+
+    async stopServiceSubscription() {
+      try {
+        await supabase.removeAllChannels();
+      } catch (error) {
+        console.log(error.error_description || error.message);
+      }
+    },
   },
 
   modules: {},

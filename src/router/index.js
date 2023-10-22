@@ -2,12 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView';
 import ProductView from '../views/ProductView';
 import ServiceView from '../views/ServiceView';
+import BookServiceView from '../views/BookServiceView';
 import SettingsView from '../views/SettingsView';
 import CompanyRegistrationView from '../views/CompanyRegistrationView';
 import CompanyRegistratedView from '../views/CompanyRegistratedView';
 import AccountingView from '../views/AccountingView';
 import AGBView from '../views/AGBView';
 import UpdateAboView from '../views/UpdateAboView';
+import ServiceQRView from '../views/ServiceQRView';
 import store from '../store/index';
 import { supabase } from '../supabase';
 
@@ -31,6 +33,16 @@ const routes = [
     name: 'ServiceView',
     component: ServiceView,
     meta: {
+      locked: true,
+      company: true
+    },
+  },
+  {
+    path: '/service',
+    name: 'BookServiceView',
+    component: BookServiceView,
+    meta: {
+      footer: false,
       locked: true,
       company: true
     },
@@ -87,7 +99,15 @@ const routes = [
       footer: false,
       company: true
     },
-  }
+  },
+  {
+    path: '/service/:serviceid/qr',
+    component: ServiceQRView,
+    meta: {
+      requiresAuth: true,
+      footer: false,
+    },
+  },
 ];
 
 const router = createRouter({
@@ -110,6 +130,7 @@ router.beforeEach(async (to, from, next) => {
       })
       store.commit('setUser', data.user);
       store.dispatch('startUserCompanySubscription');
+      store.dispatch('startServiceSubscription');
       await new Promise((resolve) => setTimeout(resolve, 500));
     } catch(e) {
       store.commit('setUser', null);

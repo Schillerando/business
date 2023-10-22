@@ -1,21 +1,58 @@
 <template>
-  <AlertBanner title="Coming Soon" />
   <TitleDiv title="Services" />
-  <InfoDiv info="Hier hast du in Zukunft eine Übersicht über alle Services, die Schillerando anbietet. Du kannst Services wie Lieferung von Waren aus dem Ausland oder Müllentsorgung buchen. Außerdem kannst du die Hilfe eines Schillerando Mitarbeiters anfordern, wenn du Probleme mit der Verwaltung deines Unternehmens oder der Buchhaltung hast." />
 
+  <div v-if="activeService != null" class="list booked">
+    <BookedServiceTile :data="activeService"/>
+  </div>
+
+  <div class="list">
+    <ServiceTile :disabled="activeService != null || true" title="Support" description="Du hast Probleme mit der Verwaltung deines Unternehmens, dem Einstellen deiner Angebote oder der Buchhaltungssoftware? Rufe einen Schillerando-Mitarbeiter um dir beim Umgang mit Schillerando oder Schillerando Business zu helfen." icon="&#x1F91D;" price="0" />
+    <ServiceTile :disabled="activeService != null || true" title="Müllentsorgung" description="Ein Schillerando-Mitarbeiter entsorgt den Müll deines Unternehmens." icon="&#x1F5D1;&#xFE0F;" price="5" />
+    <ServiceTile :disabled="activeService != null || true" title="Wareneinkauf" description="Dir gehen im Verlauf eines Tages die Waren aus und du hast keine Möglichkeit für den nächsten Tag neue zu besorgen? Wir kaufen neue Ware für dein Unternehmen im Ausland ein! Alle Details werden persönlich mit einem Schillerando-Mitarbeiter vereinbart." icon="&#128666;" price="50" />
+  </div>
+  
 </template>
 
 <script>
-import TitleDiv from '@/shared//components/TitleDiv';
-import InfoDiv from '../components/InfoDiv';
-import AlertBanner from '@/shared/components/AlertBanner';
+import TitleDiv from '@/shared/components/TitleDiv';
+import ServiceTile from '../components/ServiceTile';
+import { useStore } from 'vuex'
+import { computed } from 'vue'
+import BookedServiceTile from '@/components/BookedServiceTile.vue';
 
 export default {
   name: 'ServiceView',
   components: {
     TitleDiv,
-    AlertBanner,
-    InfoDiv
+    ServiceTile,
+    BookedServiceTile
+},
+  setup() {
+    const store = useStore();
+
+    const activeService = computed(() => store.state.activeService);
+
+    return {
+      store,
+      activeService
+    }
+  },
+  data() {
+    return {
+      icon: ''
+    }
   },
 };
 </script>
+
+<style scoped>
+.list {
+  margin: 0 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+}
+
+.booked {
+  margin-bottom: 50px;
+}
+</style>
