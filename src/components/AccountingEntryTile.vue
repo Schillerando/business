@@ -58,6 +58,7 @@ export default {
       info: '',
       amount: '',
       product: null,
+      product_count: 1,
       created_at: '',
       imageBefore: null, 
       image: null, 
@@ -89,6 +90,7 @@ export default {
       this.entry.variation = this.data.variation;
       this.entry.extras = this.data.extras;
       this.entry.product = this.data.product;
+      this.entry.product_count = this.data.product_count;
 
       if(this.data.users != undefined) {
         this.entry.userName = this.data.users.name

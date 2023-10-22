@@ -24,7 +24,7 @@
         <form class="needs-validation" novalidate>
 
           <div class="input-group mb-3">
-            <span class="input-group-text"
+            <span class="input-group-text input-group-text-standard"
               ><i class="fa-solid fa-list"></i
             ></span>
             <select
@@ -50,8 +50,8 @@
             </select>
           </div>
 
-          <div v-if="entry.type == 'Verkauf+'" class="input-group mb-3">
-            <span class="input-group-text"
+          <div v-if="entry.type == 'Verkauf+'" class="product input-group mb-3">
+            <span class="input-group-text input-group-text-standard"
               ><i class="fa-solid fa-box-open"></i></span>
             <select
               class="form-select"
@@ -65,8 +65,34 @@
             </select>
           </div>
 
+          <div v-if="entry.type == 'Verkauf+' && entry.product.id != null" class="input-group count">
+            <span v-if="this.entry.product_count == 1" class="input-group-text">&nbsp;&nbsp;&nbsp;</span>
+            <button v-else @click.prevent="countDown" class="input-group-text">-</button>
+            <input
+              disabled
+              id="countInput"
+              style="background-color: white"
+              :value="entry.product_count"
+              type="number"
+              class="form-control"
+              aria-label="Anzahl an Produkten"
+              min="1"
+              max="9"
+            />
+            <span v-if="entry.product_count == 9" class="input-group-text">
+              &nbsp;&nbsp;&nbsp;
+            </span>
+            <button
+              v-else
+              @click.prevent="countUp"
+              class="input-group-text"
+            >
+              +
+            </button>
+          </div>
+
           <div v-if="entry.type == 'Verkauf+' && entry.product != null && entry.product.has_variations" class="input-group mb-3">
-            <span class="input-group-text"
+            <span class="input-group-text input-group-text-standard"
               ><i class="fa-solid fa-bars"></i></span>
             <select
               class="form-select"
@@ -93,7 +119,7 @@
           </div>
 
           <div class="input-group mb-3">
-            <span class="input-group-text"
+            <span class="input-group-text input-group-text-standard"
               ><i class="fa-solid fa-bookmark"></i></span>
             <input
               type="text"
@@ -107,7 +133,7 @@
           </div>
 
           <div v-if="entry.type != 'Verkauf+' && entry.type != 'Miete-'" class="input-group mb-3">
-            <span class="input-group-text currency-input"
+            <span class="input-group-text input-group-text-standard currency-input"
               >Währung</span>
             <a :class="{ 'btn-primary': !entry.currencyIsEuro, }" @click.prevent="changeCurrency(false)" class="form-control">
               Schillis
@@ -118,7 +144,7 @@
           </div>
 
           <div class="input-group mb-3">
-            <span class="input-group-text"
+            <span class="input-group-text input-group-text-standard"
               >
               <i v-if="entry.currencyIsEuro" class="fa-solid fa-euro-sign" :class="{ income: entry.type.includes('+'), expense: entry.type.includes('-') }"></i>
               <i v-else class="fa-solid fa-dollar-sign" :class="{ income: entry.type.includes('+'), expense: entry.type.includes('-') }"></i>
@@ -136,7 +162,7 @@
           </div>
 
           <div class="input-group mb-3">
-            <span class="input-group-text"
+            <span class="input-group-text input-group-text-standard"
               ><i class="fa-solid fa-circle-info"></i
             ></span>
             <textarea
@@ -231,6 +257,7 @@ export default {
       info: '',
       amount: '',
       product: null,
+      product_count: 1,
       created_at: '',
       imageBefore: null, 
       image: null, 
@@ -247,6 +274,7 @@ export default {
       info: '',
       amount: '',
       product: null,
+      product_count: 1,
       created_at: '',
       imageBefore: null, 
       image: null, 
@@ -290,6 +318,7 @@ export default {
       this.entry.currencyIsEuro = this.data.currencyIsEuro;
       this.entry.variation = this.data.variation;
       this.entry.extras = this.data.extras;
+      this.entry.product_count = this.data.product_count;
 
       console.log(this.data.extras)
 
@@ -312,6 +341,7 @@ export default {
       this.initialEntry.currencyIsEuro = this.data.currencyIsEuro;
       this.initialEntry.variation = this.data.variation;
       this.initialEntry.extras = this.data.extras;
+      this.initialEntry.product_count = this.data.product_count;
 
       if(index != -1) this.initialEntry.product = this.products[index];
       else this.initialEntry.product = this.product;
@@ -403,6 +433,7 @@ export default {
         this.entry.currencyIsEuro = newEntry.currencyIsEuro;
         this.entry.created_at = newEntry.created_at
         this.entry.userName = newEntry.userName;
+        this.entry.product_count = newEntry.product_count;
 
         if (newEntry.bill_picture != null) {
           const response = await supabase.storage
@@ -447,12 +478,51 @@ export default {
 
       if(this.entry.extras.includes(extraId)) {
         this.entry.extras = this.entry.extras.filter(extra => extra != extraId)
-        this.entry.amount -= this.entry.product.extras[index].extra_price
+        this.entry.amount -= this.entry.product_count * this.entry.product.extras[index].extra_price
       } else {
         this.entry.extras.push(extraId)
-        this.entry.amount += this.entry.product.extras[index].extra_price
+        this.entry.amount += this.entry.product_count * this.entry.product.extras[index].extra_price
       }
 
+    },
+    countUp() {
+      this.entry.product_count++;
+
+      if(this.entry.product_count > 1) {
+        if(this.entry.product.variations != undefined) var findVariation = this.entry.product.variations.find(variation => variation.id == this.entry.variation);
+
+        this.entry.name = this.entry.product_count + 'x ' + this.entry.product.name + ' ' + (findVariation == undefined ? '' : findVariation.name)
+      }
+
+      this.entry.amount = this.entry.product_count * (findVariation == undefined ? this.entry.product.price : findVariation.price)
+
+      if(this.entry.extras != null) {
+        this.entry.extras.forEach(extra => {
+          var findExtra = this.entry.product.extras.find(e => e.id == extra);
+          this.entry.amount += this.entry.product_count * findExtra.extra_price
+        })
+      }
+      
+    },
+    countDown() {
+      this.entry.product_count--;
+
+      if(this.entry.product_count > 1) {
+        if(this.entry.product.variations != undefined) var findVariation = this.entry.product.variations.find(variation => variation.id == this.entry.variation);
+
+        this.entry.name = this.entry.product_count + 'x ' + this.entry.product.name + ' ' + (findVariation == undefined ? '' : findVariation.name)
+      } else {
+        this.entry.name = this.entry.product.name + ' ' + (findVariation == undefined ? '' : findVariation.name)
+      } 
+
+      this.entry.amount = this.entry.product_count * (findVariation == undefined ? this.entry.product.price : findVariation.price)
+
+      if(this.entry.extras != null) {
+        this.entry.extras.forEach(extra => {
+          var findExtra = this.entry.product.extras.find(e => e.id == extra);
+          this.entry.amount += this.entry.product_count * findExtra.extra_price
+        })
+      }
     },
     async validateEntry(pressed, productChanged, variationChanged) {
       var nameInput = document.getElementById('entry-name');
@@ -474,6 +544,7 @@ export default {
 
           this.entry.variation = ''
           this.entry.extras = []
+          this.entry.product_count = 1
         } else {
           this.entry.name = nameInput.value;
           this.entry.amount = amountInput.value;
@@ -485,14 +556,15 @@ export default {
           if(variationInput.value != '') {
             var findVariation = this.entry.product.variations.find(variation => variation.id == variationInput.value);
 
-            this.entry.name = this.entry.product.name + " " + findVariation.name
+            if(this.entry.product_count > 1) this.entry.name = this.entry.product_count + 'x ' + this.entry.product.name + " " + findVariation.name
+            else this.entry.name = this.entry.product.name + " " + findVariation.name
 
-            this.entry.amount = findVariation.price
+            this.entry.amount = this.entry.product_count * findVariation.price
 
             this.entry.extras.forEach((extraId) => {
               var index = this.entry.product.extras.findIndex(extra => extra.id == extraId)
 
-              this.entry.amount += this.entry.product.extras[index].extra_price
+              this.entry.amount += this.entry.product_count * this.entry.product.extras[index].extra_price
             })
           }
         }
@@ -685,7 +757,7 @@ img {
 }
 
 
-.input-group-text {
+.input-group-text-standard {
   width: 40px;
   padding: 0;
   padding-left: 9px;
@@ -762,6 +834,23 @@ img {
 
 .form-check {
   margin-bottom: 2px;
+}
+
+.count {
+  width: 110px;
+  margin-bottom: 15px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 </style>

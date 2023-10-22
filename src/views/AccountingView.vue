@@ -274,6 +274,7 @@ export default {
         } else {
           this.entries[index].type = entryData.type
           this.entries[index].product = entryData.product
+          this.entries[index].product_count = entryData.product_count
           this.entries[index].name = entryData.name
           this.entries[index].amount = entryData.amount
           this.entries[index].info = entryData.info
