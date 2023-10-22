@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import TitleDiv from '../components/TitleDiv';
+import TitleDiv from '@/shared/components/TitleDiv';
 import ServiceTile from '../components/ServiceTile';
 import { useStore } from 'vuex'
 import { computed } from 'vue'
