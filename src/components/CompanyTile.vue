@@ -35,6 +35,7 @@
           <div class="location-text">{{ data.location }}</div>
         </div>
       </div>
+      
     </div>
   </div>
 </template>

@@ -26,7 +26,7 @@
 
       <p class="description">{{ product.info }}</p>
 
-      <p class="price">{{ product.price }} $</p>
+      <p class="price"><span v-if="product.has_variations">ab</span> {{ product.price }} $</p>
 
       <div class="settings">
         <i v-if="product.delivery" class="fa-solid fa-truck fa-lg"></i>
