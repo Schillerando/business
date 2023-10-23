@@ -6,9 +6,9 @@
   </div>
 
   <div class="list">
-    <ServiceTile :disabled="activeService != null || true" title="Support" description="Du hast Probleme mit der Verwaltung deines Unternehmens, dem Einstellen deiner Angebote oder der Buchhaltungssoftware? Rufe einen Schillerando-Mitarbeiter um dir beim Umgang mit Schillerando oder Schillerando Business zu helfen." icon="&#x1F91D;" price="0" />
-    <ServiceTile :disabled="activeService != null || true" title="Müllentsorgung" description="Ein Schillerando-Mitarbeiter entsorgt den Müll deines Unternehmens." icon="&#x1F5D1;&#xFE0F;" price="5" />
-    <ServiceTile :disabled="activeService != null || true" title="Wareneinkauf" description="Dir gehen im Verlauf eines Tages die Waren aus und du hast keine Möglichkeit für den nächsten Tag neue zu besorgen? Wir kaufen neue Ware für dein Unternehmen im Ausland ein! Alle Details werden persönlich mit einem Schillerando-Mitarbeiter vereinbart." icon="&#128666;" price="50" />
+    <ServiceTile :disabled="activeService != null" title="Support" description="Du hast Probleme mit der Verwaltung deines Unternehmens, dem Einstellen deiner Angebote oder der Buchhaltungssoftware? Rufe einen Schillerando-Mitarbeiter um dir beim Umgang mit Schillerando oder Schillerando Business zu helfen." icon="&#x1F91D;" price="0" />
+    <ServiceTile :disabled="activeService != null" title="Müllentsorgung" description="Ein Schillerando-Mitarbeiter entsorgt den Müll deines Unternehmens. Für nicht getrennten Müll fallen 5$ extra Gebühren an. Dies gilt auch für Unternehmen mit Premium Abo!" icon="&#x1F5D1;&#xFE0F;" price="5" />
+    <ServiceTile :disabled="activeService != null" title="Wareneinkauf" description="Dir gehen im Verlauf eines Tages die Waren aus und du hast keine Möglichkeit für den nächsten Tag neue zu besorgen? Wir kaufen neue Ware für dein Unternehmen im Ausland ein! Wenn du diesen Service in Anspruch nehmen willst, komme bei unserem Stand auf dem unteren Pausehof vorbei und wir klären alle Details. " icon="&#128666;" price="50" :button="false"/>
   </div>
   
 </template>

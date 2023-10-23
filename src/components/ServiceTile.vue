@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div class="button">
+    <div v-if="button != false" class="button">
       <button :disabled="disabled" @click="bookService()" class="btn btn-primary">
         Buchen
       </button>
@@ -32,7 +32,7 @@ import { useStore } from 'vuex';
 
 export default {
   name: 'ProductTile',
-  props: ['title', 'description', 'icon', 'price', 'disabled'],
+  props: ['title', 'description', 'icon', 'price', 'disabled', 'button'],
   setup() {
     const store = useStore()
 
