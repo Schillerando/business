@@ -20,7 +20,7 @@
     </div>
 
     <div v-if="button != false" class="button">
-      <button :disabled="disabled" @click="bookService()" class="btn btn-primary">
+      <button :disabled="disabled || true" @click="bookService()" class="btn btn-primary">
         Buchen
       </button>
     </div>
